@@ -18,8 +18,10 @@
         </activity>
         <activity
             android:name=".BuildCragActivity"
-            android:parentActivityName=".MainActivity">
-
+            android:parentActivityName="com.dexcaff.cragmapper.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.dexcaff.cragmapper.MainActivity" />
         </activity>
     </application>
 
