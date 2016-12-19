@@ -12,7 +12,7 @@
     tools:context="com.dexcaff.cragmapper.BuildCragActivity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -21,31 +21,31 @@
         android:text="Route Name" />
 
     <EditText
-        android:id="@+id/cragEditText"
+        android:id="@+id/crag_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/textView"
+        android:layout_below="@+id/text_view"
         android:ems="10"
         android:inputType="textPersonName" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/text_view_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/cragEditText"
+        android:layout_below="@+id/crag_edit_text"
         android:text="Route Image" />
 
     <ImageButton
-        android:id="@+id/cragImageButton"
+        android:id="@+id/crag_add_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/textView2"
+        android:layout_below="@+id/text_view_2"
         app:srcCompat="@android:drawable/ic_input_add" />
 
 </RelativeLayout>

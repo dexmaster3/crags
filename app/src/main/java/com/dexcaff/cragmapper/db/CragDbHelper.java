@@ -26,6 +26,7 @@ public class CragDbHelper extends SQLiteOpenHelper
         db.execSQL("CREATE TABLE " + CragContract.CragEntry.TABLE_NAME + " (" +
                 CragContract.CragEntry._ID + " INTEGER PRIMARY KEY," +
                 CragContract.CragEntry.COLUMN_NAME_TITLE + " TEXT," +
+                CragContract.CragEntry.COLUMN_NAME_RATING + " INT," +
                 CragContract.CragEntry.COLUMN_NAME_IMAGE + " TEXT )");
     }
 

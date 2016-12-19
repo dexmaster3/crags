@@ -17,5 +17,6 @@ public final class CragContract {
         public static final String TABLE_NAME = "crags";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_IMAGE = "image";
+        public static final String COLUMN_NAME_RATING = "rating";
     }
 }
