@@ -1,8 +1,10 @@
 package com.dexcaff.cragmapper.models;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 
 import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.db.CragDbHelper;
@@ -19,6 +21,44 @@ import java.util.ArrayList;
 public class Crag {
     public String name;
     public String imageURI;
+
+    public Crag(String name, String imageURI) {
+        this.name = name;
+        this.imageURI = imageURI;
+    }
+
+    public static Crag addCrag(Context context, Crag crag) throws Exception {
+        CragDbHelper dbHelper = new CragDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CragContract.CragEntry.COLUMN_NAME_TITLE, crag.name);
+        values.put(CragContract.CragEntry.COLUMN_NAME_IMAGE, crag.imageURI);
+        long rowId = db.insert(CragContract.CragEntry.TABLE_NAME, null, values);
+        if (rowId == -1) {
+            throw new Exception("Add Crag sql insert failed");
+        }
+        return crag;
+    }
+
+    public static Bundle getCragById(Context context, int id) {
+        CragDbHelper dbHelper = new CragDbHelper(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] columns = CragContract.getColumns();
+        Cursor cursor = db.query(
+                CragContract.CragEntry.TABLE_NAME,
+                columns,
+                CragContract.CragEntry._ID + " = ?",
+                new String[]{Integer.toString(id)},
+                null,
+                null,
+                null,
+                "1");
+        Bundle crag = new Bundle();
+        crag.putString(CragContract.CragEntry.COLUMN_NAME_TITLE, cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE)));
+        crag.putString(CragContract.CragEntry.COLUMN_NAME_IMAGE, cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
+
+        return crag;
+    }
 
     public static ArrayList<Crag> getAllCrags(Context context) {
         String[] reqColumns = {
@@ -47,10 +87,5 @@ public class Crag {
         c.close();
         db.close();
         return cragList;
-    }
-
-    public Crag(String name, String imageURI) {
-        this.name = name;
-        this.imageURI = imageURI;
     }
 }

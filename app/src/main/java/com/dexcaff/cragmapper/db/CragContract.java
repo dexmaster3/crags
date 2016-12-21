@@ -2,6 +2,8 @@ package com.dexcaff.cragmapper.db;
 
 import android.provider.BaseColumns;
 
+import java.lang.reflect.Field;
+
 /**
  * @author Dexter <code@dexcaff.com>
  * @version 2016.12.15
@@ -18,5 +20,14 @@ public final class CragContract {
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_IMAGE = "image";
         public static final String COLUMN_NAME_RATING = "rating";
+    }
+
+    public static String[] getColumns() {
+        Field[] fields = String.class.getDeclaredFields();
+        String[] strings = new String[fields.length];
+        for (int i = 0; i < fields.length; i++) {
+            strings[i] = fields[i].toString();
+        }
+        return strings;
     }
 }

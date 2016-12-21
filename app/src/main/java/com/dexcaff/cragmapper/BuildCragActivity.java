@@ -1,8 +1,6 @@
 package com.dexcaff.cragmapper;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,8 +16,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.dexcaff.cragmapper.db.CragContract;
-import com.dexcaff.cragmapper.db.CragDbHelper;
+import com.dexcaff.cragmapper.models.Crag;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,8 +95,7 @@ public class BuildCragActivity extends AppCompatActivity {
         }
     }
 
-    private void dispatchTakePicture()
-    {
+    private void dispatchTakePicture() {
         Intent cragImageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (cragImageIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
@@ -119,8 +115,7 @@ public class BuildCragActivity extends AppCompatActivity {
         }
     }
 
-    private File createImageFile() throws IOException
-    {
+    private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd__HHmmss", Locale.US).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -135,13 +130,17 @@ public class BuildCragActivity extends AppCompatActivity {
 
     private void saveCragClick() {
         EditText cragTitleView = (EditText) findViewById(R.id.crag_edit_text);
+
         //ToDo add validation
-        CragDbHelper mDbHelper = new CragDbHelper(getBaseContext());
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(CragContract.CragEntry.COLUMN_NAME_TITLE, cragTitleView.getText().toString());
-        values.put(CragContract.CragEntry.COLUMN_NAME_IMAGE, mCurrentPhotoPath);
-        long rowId = db.insert(CragContract.CragEntry.TABLE_NAME, null, values);
+        try {
+            Crag crag = Crag.addCrag(getBaseContext(),
+                    new Crag(
+                            cragTitleView.getText().toString(),
+                            mCurrentPhotoPath
+                    ));
+        } catch (Exception ex) {
+            Log.d(TAG, "Save crag click failed", ex);
+        }
 
         //Return to main activity hitting onCreate()
         Intent upIntent = NavUtils.getParentActivityIntent(this);
