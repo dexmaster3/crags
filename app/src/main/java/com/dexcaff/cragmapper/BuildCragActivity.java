@@ -15,7 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
+import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.models.Crag;
 
 import java.io.File;
@@ -27,6 +29,7 @@ import java.util.Locale;
 public class BuildCragActivity extends AppCompatActivity {
     private ImageButton mCragImageButton;
     private String mCurrentPhotoPath;
+    private int mCragId;
     private static final String TAG = "BuildCragActivity";
 
     @Override
@@ -34,18 +37,14 @@ public class BuildCragActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_build_crag);
 
+        if (getIntent().getBundleExtra("crag") != null) {
+            mCragId = setCragData(getIntent().getBundleExtra("crag"));
+        }
         //Action bar functionality
         final LayoutInflater inflater = (LayoutInflater) getSupportActionBar().getThemedContext()
                 .getSystemService(LAYOUT_INFLATER_SERVICE);
         final View customActionBarView = inflater.inflate(
-                R.layout.entity_save_toolbar, null);
-        customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        saveCragClick();
-                    }
-                });
+                R.layout.entity_save_toolbar, (ViewGroup) findViewById(R.id.content_main));
         customActionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -53,7 +52,13 @@ public class BuildCragActivity extends AppCompatActivity {
                         finish();
                     }
                 });
-
+        customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        saveCragClick();
+                    }
+                });
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayOptions(
                 android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,
@@ -133,11 +138,22 @@ public class BuildCragActivity extends AppCompatActivity {
 
         //ToDo add validation
         try {
-            Crag crag = Crag.addCrag(getBaseContext(),
-                    new Crag(
-                            cragTitleView.getText().toString(),
-                            mCurrentPhotoPath
-                    ));
+            if (mCragId > 0) {
+                Crag.updateCrag(getBaseContext(),
+                        new Crag(
+                                cragTitleView.getText().toString(),
+                                mCurrentPhotoPath
+                        ),
+                        mCragId
+                );
+            } else {
+                Crag.addCrag(getBaseContext(),
+                        new Crag(
+                                cragTitleView.getText().toString(),
+                                mCurrentPhotoPath
+                        )
+                );
+            }
         } catch (Exception ex) {
             Log.d(TAG, "Save crag click failed", ex);
         }
@@ -145,5 +161,14 @@ public class BuildCragActivity extends AppCompatActivity {
         //Return to main activity hitting onCreate()
         Intent upIntent = NavUtils.getParentActivityIntent(this);
         NavUtils.navigateUpTo(this, upIntent);
+    }
+
+    private int setCragData(Bundle crag) {
+        mCragImageButton = (ImageButton) findViewById(R.id.crag_add_image);
+        mCragImageButton.setImageURI(Uri.parse(crag.getString(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
+        TextView cragTitle = (TextView) findViewById(R.id.crag_edit_text);
+        cragTitle.setText(crag.getString(CragContract.CragEntry.COLUMN_NAME_TITLE));
+
+        return crag.getInt(CragContract.CragEntry._ID);
     }
 }

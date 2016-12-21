@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog dialog = new AlertDialog.Builder(this)
                         .setTitle("Add a new route")
                         .setView(taskEditText)
+                        //ToDo settings page
                         .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void generateCragsList()
     {
-        ArrayList<Crag> cragList = Crag.getAllCrags(getBaseContext());
+        ArrayList<Bundle> cragList = Crag.getAllCrags(getBaseContext());
         //Apply database info to views
         mCragListView = (ListView) findViewById(R.id.crags_list);
         if (mAdapter == null) {

@@ -40,6 +40,24 @@ public class Crag {
         return crag;
     }
 
+    public static Crag updateCrag(Context context, Crag crag, int id) throws Exception {
+        CragDbHelper dbHelper = new CragDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CragContract.CragEntry.COLUMN_NAME_TITLE, crag.name);
+        values.put(CragContract.CragEntry.COLUMN_NAME_IMAGE, crag.imageURI);
+        long rowId = db.update(
+                CragContract.CragEntry.TABLE_NAME,
+                values,
+                CragContract.CragEntry._ID + " = ?",
+                new String[] {Integer.toString(id)}
+        );
+        if (rowId == -1) {
+            throw new Exception("Add Crag sql update failed");
+        }
+        return crag;
+    }
+
     public static Bundle getCragById(Context context, int id) {
         CragDbHelper dbHelper = new CragDbHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -54,13 +72,17 @@ public class Crag {
                 null,
                 "1");
         Bundle crag = new Bundle();
-        crag.putString(CragContract.CragEntry.COLUMN_NAME_TITLE, cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE)));
-        crag.putString(CragContract.CragEntry.COLUMN_NAME_IMAGE, cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
-
+        if (cursor.moveToNext()) {
+            crag.putString(CragContract.CragEntry.COLUMN_NAME_TITLE, cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE)));
+            crag.putString(CragContract.CragEntry.COLUMN_NAME_IMAGE, cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
+            crag.putInt(CragContract.CragEntry._ID, id);
+        }
+        cursor.close();
+        db.close();
         return crag;
     }
 
-    public static ArrayList<Crag> getAllCrags(Context context) {
+    public static ArrayList<Bundle> getAllCrags(Context context) {
         String[] reqColumns = {
                 CragContract.CragEntry._ID,
                 CragContract.CragEntry.COLUMN_NAME_TITLE,
@@ -75,14 +97,16 @@ public class Crag {
                 null,
                 null,
                 null,
-                CragContract.CragEntry.COLUMN_NAME_TITLE + " ASC"
+                CragContract.CragEntry._ID + " ASC"
         );
 
-        ArrayList<Crag> cragList = new ArrayList<Crag>();
+        ArrayList<Bundle> cragList = new ArrayList<>();
         while (c.moveToNext()) {
-            String title = c.getString(c.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE));
-            String uri = c.getString(c.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE));
-            cragList.add(new Crag(title, uri));
+            Bundle crag = new Bundle();
+            crag.putString(CragContract.CragEntry.COLUMN_NAME_TITLE, c.getString(c.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE)));
+            crag.putString(CragContract.CragEntry.COLUMN_NAME_IMAGE, c.getString(c.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
+            crag.putInt(CragContract.CragEntry._ID, c.getInt(c.getColumnIndex(CragContract.CragEntry._ID)));
+            cragList.add(crag);
         }
         c.close();
         db.close();
