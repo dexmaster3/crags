@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add_crag);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void generateCragsList()
     {
-        ArrayList<Bundle> cragList = Crag.getAllCrags(getBaseContext());
+        ArrayList<Crag> cragList = Crag.getAllCrags(getBaseContext());
         //Apply database info to views
         mCragListView = (ListView) findViewById(R.id.crags_list);
         if (mAdapter == null) {
@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void openCragBuilderActivity()
     {
-        //Todo add edit crag builder
         Intent intent = new Intent(this, BuildCragActivity.class);
         startActivity(intent);
     }

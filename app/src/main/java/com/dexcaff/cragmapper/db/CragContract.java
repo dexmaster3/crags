@@ -22,6 +22,7 @@ public final class CragContract {
 
     public static String[] getColumns() {
         return new String[] {
+                CragEntry._ID,
                 CragEntry.COLUMN_NAME_TITLE,
                 CragEntry.COLUMN_NAME_IMAGE,
                 CragEntry.COLUMN_NAME_RATING

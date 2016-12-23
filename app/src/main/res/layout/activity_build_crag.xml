@@ -12,40 +12,49 @@
     tools:context="com.dexcaff.cragmapper.BuildCragActivity">
 
     <TextView
-        android:id="@+id/text_view"
+        android:id="@+id/route_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Route Name" />
+        android:text="@string/route_name" />
 
     <EditText
-        android:id="@+id/crag_edit_text"
+        android:id="@+id/crag_edit_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/text_view"
+        android:layout_below="@+id/route_name"
         android:ems="10"
         android:inputType="textPersonName" />
 
     <TextView
-        android:id="@+id/text_view_2"
+        android:id="@+id/route_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/crag_edit_text"
-        android:text="Route Image" />
+        android:layout_below="@+id/crag_edit_title"
+        android:text="@string/route_image" />
 
     <ImageButton
-        android:id="@+id/crag_add_image"
+        android:id="@+id/crag_edit_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/text_view_2"
+        android:layout_below="@+id/route_image"
+        android:contentDescription="@string/crag_image_button_desc"
         app:srcCompat="@android:drawable/ic_input_add" />
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/crag_edit_image"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/crag_edit_rating" />
 
 </RelativeLayout>

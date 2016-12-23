@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.dexcaff.cragmapper.db.CragContract;
@@ -29,7 +30,7 @@ import java.util.Locale;
 public class BuildCragActivity extends AppCompatActivity {
     private ImageButton mCragImageButton;
     private String mCurrentPhotoPath;
-    private int mCragId;
+    private long mCragId;
     private static final String TAG = "BuildCragActivity";
 
     @Override
@@ -37,8 +38,8 @@ public class BuildCragActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_build_crag);
 
-        if (getIntent().getBundleExtra("crag") != null) {
-            mCragId = setCragData(getIntent().getBundleExtra("crag"));
+        if (getIntent().getBundleExtra(Crag.EXTRA_NAME) != null) {
+            mCragId = setCragData(getIntent().getBundleExtra(Crag.EXTRA_NAME));
         }
         //Action bar functionality
         final LayoutInflater inflater = (LayoutInflater) getSupportActionBar().getThemedContext()
@@ -72,7 +73,7 @@ public class BuildCragActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         //Image button
-        mCragImageButton = (ImageButton) findViewById(R.id.crag_add_image);
+        mCragImageButton = (ImageButton) findViewById(R.id.crag_edit_image);
         mCragImageButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -134,26 +135,18 @@ public class BuildCragActivity extends AppCompatActivity {
     }
 
     private void saveCragClick() {
-        EditText cragTitleView = (EditText) findViewById(R.id.crag_edit_text);
+        EditText cragTitleView = (EditText) findViewById(R.id.crag_edit_title);
+        RatingBar cragRatingBar = (RatingBar) findViewById(R.id.crag_edit_rating);
 
-        //ToDo add validation
+        //ToDo add validation  GET ID FOR EDITED CRAGS
         try {
-            if (mCragId > 0) {
-                Crag.updateCrag(getBaseContext(),
-                        new Crag(
-                                cragTitleView.getText().toString(),
-                                mCurrentPhotoPath
-                        ),
-                        mCragId
-                );
-            } else {
-                Crag.addCrag(getBaseContext(),
-                        new Crag(
-                                cragTitleView.getText().toString(),
-                                mCurrentPhotoPath
-                        )
-                );
-            }
+            Crag crag = new Crag(
+                    mCragId,
+                    cragTitleView.getText().toString(),
+                    mCurrentPhotoPath,
+                    cragRatingBar.getRating()
+            );
+            crag.addCrag(getBaseContext());
         } catch (Exception ex) {
             Log.d(TAG, "Save crag click failed", ex);
         }
@@ -163,12 +156,12 @@ public class BuildCragActivity extends AppCompatActivity {
         NavUtils.navigateUpTo(this, upIntent);
     }
 
-    private int setCragData(Bundle crag) {
-        mCragImageButton = (ImageButton) findViewById(R.id.crag_add_image);
+    private long setCragData(Bundle crag) {
+        mCragImageButton = (ImageButton) findViewById(R.id.crag_edit_image);
         mCragImageButton.setImageURI(Uri.parse(crag.getString(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
-        TextView cragTitle = (TextView) findViewById(R.id.crag_edit_text);
+        TextView cragTitle = (TextView) findViewById(R.id.crag_edit_title);
         cragTitle.setText(crag.getString(CragContract.CragEntry.COLUMN_NAME_TITLE));
 
-        return crag.getInt(CragContract.CragEntry._ID);
+        return crag.getLong(CragContract.CragEntry._ID);
     }
 }
