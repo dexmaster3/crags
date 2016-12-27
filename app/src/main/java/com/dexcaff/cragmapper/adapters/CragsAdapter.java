@@ -53,7 +53,7 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
                     @Override
                     public void onClick(View v) {
                         Intent editCragIntent = new Intent(getContext(), BuildCragActivity.class);
-                        editCragIntent.putExtra("crag", Crag.getCragById(getContext(), cragId).cragToBundle());
+                        editCragIntent.putExtra(Crag.EXTRA_TAG, cragId);
                         getContext().startActivity(editCragIntent);
                     }
                 }
@@ -64,8 +64,11 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
                     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                         try {
                             Crag crag = Crag.getCragById(getContext(), cragId);
-                            crag.properties.put(CragContract.CragEntry.COLUMN_NAME_RATING, rating);
-                            crag.addCrag(getContext());
+                            if ((float) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_RATING) != rating) {
+                                crag.properties.put(CragContract.CragEntry.COLUMN_NAME_RATING, rating);
+                                crag.addCrag(getContext());
+                                ratingBar.setRating(rating);
+                            }
                         } catch (Exception ex) {
                             Log.d(TAG, "Rating bar change save failed", ex);
                         }

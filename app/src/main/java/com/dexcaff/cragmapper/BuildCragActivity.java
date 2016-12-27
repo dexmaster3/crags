@@ -38,8 +38,11 @@ public class BuildCragActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_build_crag);
 
-        if (getIntent().getBundleExtra(Crag.EXTRA_NAME) != null) {
-            mCragId = setCragData(getIntent().getBundleExtra(Crag.EXTRA_NAME));
+        if (getIntent().getExtras() != null) {
+            mCragId = getIntent().getLongExtra(Crag.EXTRA_TAG, -1);
+            setCragData();
+        } else {
+            mCragId = -1;
         }
         //Action bar functionality
         final LayoutInflater inflater = (LayoutInflater) getSupportActionBar().getThemedContext()
@@ -138,7 +141,7 @@ public class BuildCragActivity extends AppCompatActivity {
         EditText cragTitleView = (EditText) findViewById(R.id.crag_edit_title);
         RatingBar cragRatingBar = (RatingBar) findViewById(R.id.crag_edit_rating);
 
-        //ToDo add validation  GET ID FOR EDITED CRAGS
+        //ToDo add validation
         try {
             Crag crag = new Crag(
                     mCragId,
@@ -156,12 +159,12 @@ public class BuildCragActivity extends AppCompatActivity {
         NavUtils.navigateUpTo(this, upIntent);
     }
 
-    private long setCragData(Bundle crag) {
+    private void setCragData() {
+        Crag crag = Crag.getCragById(getBaseContext(), mCragId);
         mCragImageButton = (ImageButton) findViewById(R.id.crag_edit_image);
-        mCragImageButton.setImageURI(Uri.parse(crag.getString(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
         TextView cragTitle = (TextView) findViewById(R.id.crag_edit_title);
-        cragTitle.setText(crag.getString(CragContract.CragEntry.COLUMN_NAME_TITLE));
 
-        return crag.getLong(CragContract.CragEntry._ID);
+        mCragImageButton.setImageURI(Uri.parse((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
+        cragTitle.setText((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_TITLE));
     }
 }

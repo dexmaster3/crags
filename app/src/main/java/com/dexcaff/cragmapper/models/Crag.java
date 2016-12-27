@@ -5,12 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.db.CragDbHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * @author Dexter <code@dexcaff.com>
@@ -20,7 +23,7 @@ import java.util.HashMap;
  */
 
 public class Crag {
-    public static final String EXTRA_NAME = "crag";
+    public static final String EXTRA_TAG = "crag_id";
     public HashMap<String, Object> properties;
 
     public Crag(long id, String name, String imageUri, Float rating) {
@@ -55,10 +58,11 @@ public class Crag {
     }
 
     public Crag addCrag(Context context) throws Exception {
-        if ((long) this.properties.get(CragContract.CragEntry._ID) > 0) {
+        if ((long) this.properties.get(CragContract.CragEntry._ID) > -1) {
             return updateCrag(context);
         }
         ContentValues values = this.cragToContentValues();
+        values.remove(CragContract.CragEntry._ID);
         CragDbHelper dbHelper = new CragDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long rowId = db.insert(CragContract.CragEntry.TABLE_NAME, null, values);
@@ -80,6 +84,8 @@ public class Crag {
         );
         if (rowId == -1) {
             throw new Exception("Add Crag sql update failed");
+        } else if (rowId == 0) {
+            Log.d(TAG, "updateCrag: zero rows updated");
         }
         return this;
     }
