@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -150,21 +149,25 @@ public class BuildCragActivity extends AppCompatActivity {
                     cragRatingBar.getRating()
             );
             crag.addCrag(getBaseContext());
+
+            //Go to picture edit
+            Intent intent = new Intent(getBaseContext(), EditCragImageActivity.class);
+            intent.putExtra(Crag.EXTRA_TAG, mCragId);
+            startActivity(intent);
         } catch (Exception ex) {
             Log.d(TAG, "Save crag click failed", ex);
         }
-
-        //Return to main activity hitting onCreate()
-        Intent upIntent = NavUtils.getParentActivityIntent(this);
-        NavUtils.navigateUpTo(this, upIntent);
     }
 
     private void setCragData() {
         Crag crag = Crag.getCragById(getBaseContext(), mCragId);
         mCragImageButton = (ImageButton) findViewById(R.id.crag_edit_image);
         TextView cragTitle = (TextView) findViewById(R.id.crag_edit_title);
+        RatingBar cragRating = (RatingBar) findViewById(R.id.crag_edit_rating);
 
-        mCragImageButton.setImageURI(Uri.parse((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
+        mCurrentPhotoPath = (String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE);
+        mCragImageButton.setImageURI(Uri.parse(mCurrentPhotoPath));
         cragTitle.setText((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_TITLE));
+        cragRating.setRating((float) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_RATING));
     }
 }

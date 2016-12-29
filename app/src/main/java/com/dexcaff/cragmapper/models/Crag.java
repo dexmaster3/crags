@@ -53,7 +53,8 @@ public class Crag {
         values.put(CragContract.CragEntry.COLUMN_NAME_TITLE, crag.getString(CragContract.CragEntry.COLUMN_NAME_TITLE, ""));
         values.put(CragContract.CragEntry.COLUMN_NAME_IMAGE, crag.getString(CragContract.CragEntry.COLUMN_NAME_IMAGE, ""));
         values.put(CragContract.CragEntry.COLUMN_NAME_RATING, crag.getFloat(CragContract.CragEntry.COLUMN_NAME_RATING, 0));
-        values.put(CragContract.CragEntry._ID, crag.getInt(CragContract.CragEntry._ID, 0));
+        //values.put(CragContract.CragEntry._ID, crag.getInt(CragContract.CragEntry._ID, 0));
+        //Don't see any reason to ever add in the AUTOINCREMENT UNIQUE ID
         return values;
     }
 
@@ -62,7 +63,6 @@ public class Crag {
             return updateCrag(context);
         }
         ContentValues values = this.cragToContentValues();
-        values.remove(CragContract.CragEntry._ID);
         CragDbHelper dbHelper = new CragDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long rowId = db.insert(CragContract.CragEntry.TABLE_NAME, null, values);
