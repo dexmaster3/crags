@@ -13,8 +13,6 @@ import com.dexcaff.cragmapper.db.CragDbHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * @author Dexter <code@dexcaff.com>
  * @version 2016.12.19
@@ -23,6 +21,7 @@ import static android.content.ContentValues.TAG;
  */
 
 public class Crag {
+    public static final String TAG = "models/Crag";
     public static final String EXTRA_TAG = "crag_id";
     public HashMap<String, Object> properties;
 
@@ -68,6 +67,8 @@ public class Crag {
         long rowId = db.insert(CragContract.CragEntry.TABLE_NAME, null, values);
         if (rowId == -1) {
             throw new Exception("Add Crag sql insert failed");
+        } else {
+            this.properties.put(CragContract.CragEntry._ID, rowId);
         }
         return this;
     }

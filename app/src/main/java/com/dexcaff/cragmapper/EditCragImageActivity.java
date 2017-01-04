@@ -1,5 +1,6 @@
 package com.dexcaff.cragmapper;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,25 +12,31 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.dexcaff.cragmapper.db.CragContract;
+import com.dexcaff.cragmapper.db.NodeContract;
 import com.dexcaff.cragmapper.libs.TouchImageView;
 import com.dexcaff.cragmapper.models.Crag;
+import com.dexcaff.cragmapper.models.Node;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 public class EditCragImageActivity extends AppCompatActivity {
+    private final static String TAG = "EditCragImageActivity";
+    private Crag mCurrentCrag;
     private TouchImageView mImageView;
     private Uri mOriginalImage;
     private android.support.v7.app.ActionBar mActionBar;
     private int mActionBarOptions;
     private boolean mTouchActive;
+    private float[] mCurrentTouchCoords;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +44,14 @@ public class EditCragImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mActionBar = getSupportActionBar();
         mActionBarOptions = mActionBar.getDisplayOptions();
-        Crag crag = Crag.getCragById(getBaseContext(), getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
+        mCurrentCrag = Crag.getCragById(getBaseContext(), getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
 
         setContentView(R.layout.activity_edit_crag_image);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        mOriginalImage = Uri.parse((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE));
+        mOriginalImage = Uri.parse((String) mCurrentCrag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE));
         mImageView = (TouchImageView) findViewById(R.id.crag_edit_image_view);
         mImageView.setImageURI(mOriginalImage);
         mImageView.setOnTouchListener(
@@ -79,13 +86,13 @@ public class EditCragImageActivity extends AppCompatActivity {
             if (!toggleTouchActive()) {
                 showAddCragActionBar();
 
-                float[] touchCoords = getViewCoords(event, mImageView);
+                getViewCoords(event, mImageView);
                 Bitmap cragImage = ((BitmapDrawable)mImageView.getDrawable()).getBitmap();
                 Bitmap cragNode = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_cancel);
                 Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
                 Canvas canvas = new Canvas(resultBitmap);
                 canvas.drawBitmap(cragImage, new Matrix(), null);
-                canvas.drawBitmap(cragNode, touchCoords[0] - (cragNode.getWidth() / 2), touchCoords[1] - (cragNode.getHeight() / 2), new Paint());
+                canvas.drawBitmap(cragNode, mCurrentTouchCoords[0] - (cragNode.getWidth() / 2), mCurrentTouchCoords[1] - (cragNode.getHeight() / 2), new Paint());
 
                 mImageView.setImageBitmap(resultBitmap);
             } else {
@@ -106,7 +113,18 @@ public class EditCragImageActivity extends AppCompatActivity {
     }
 
     private void saveCragTouch() {
+        try {
+            long cragid = (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID);
+            Node node = new Node(-1, cragid, mCurrentTouchCoords[0], mCurrentTouchCoords[1]);
+            node.addNode(getBaseContext());
 
+            //ToDo navigate up to final location?
+            Intent intent = new Intent(getBaseContext(), MainActivity.class);
+            intent.putExtra(Node.EXTRA_TAG, (long) node.properties.get(NodeContract.NodeEntry._ID));
+            startActivity(intent);
+        } catch (Exception ex) {
+            Log.d(TAG, "Save node click failed", ex);
+        }
     }
 
     private void showAddCragActionBar() {
@@ -144,15 +162,15 @@ public class EditCragImageActivity extends AppCompatActivity {
         mActionBar.setDisplayOptions(mActionBarOptions);
     }
 
-    private float[] getViewCoords(MotionEvent event, TouchImageView imageView) {
+    private void getViewCoords(MotionEvent event, TouchImageView imageView) {
         Matrix invertMatrix = new Matrix();
         imageView.getImageMatrix().invert(invertMatrix);
-        float[] touchCoords = new float[] {event.getX(), event.getY()};
-        invertMatrix.mapPoints(touchCoords);
-        //Todo density could be an issue but this doesn't work
+        mCurrentTouchCoords = new float[] {event.getX(), event.getY()};
+        invertMatrix.mapPoints(mCurrentTouchCoords);
+        //This should fix density issues
         float density = getResources().getDisplayMetrics().density;
-        touchCoords[0] *= density;
-        touchCoords[1] *= density;
-        return touchCoords;
+        mCurrentTouchCoords[0] *= density;
+        mCurrentTouchCoords[1] *= density;
+
     }
 }
