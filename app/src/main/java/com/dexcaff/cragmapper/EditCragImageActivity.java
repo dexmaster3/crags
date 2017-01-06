@@ -1,12 +1,10 @@
 package com.dexcaff.cragmapper;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -23,6 +21,9 @@ import com.dexcaff.cragmapper.db.NodeContract;
 import com.dexcaff.cragmapper.libs.TouchImageView;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -53,7 +54,7 @@ public class EditCragImageActivity extends AppCompatActivity {
         }
         mOriginalImage = Uri.parse((String) mCurrentCrag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE));
         mImageView = (TouchImageView) findViewById(R.id.crag_edit_image_view);
-        mImageView.setImageURI(mOriginalImage);
+        mImageView.setImageBitmap(getPopulatedCragBitmap());
         mImageView.setOnTouchListener(
                 new View.OnTouchListener() {
                     @Override
@@ -84,10 +85,8 @@ public class EditCragImageActivity extends AppCompatActivity {
         final int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
             if (!toggleTouchActive()) {
-                showAddCragActionBar();
-
                 getViewCoords(event, mImageView);
-                Bitmap cragImage = ((BitmapDrawable)mImageView.getDrawable()).getBitmap();
+                Bitmap cragImage = getPopulatedCragBitmap();
                 Bitmap cragNode = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_cancel);
                 Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
                 Canvas canvas = new Canvas(resultBitmap);
@@ -96,32 +95,19 @@ public class EditCragImageActivity extends AppCompatActivity {
 
                 mImageView.setImageBitmap(resultBitmap);
             } else {
-                hideAddCragActionBar();
-                mImageView.setImageURI(mOriginalImage);
+                mImageView.setImageBitmap(getPopulatedCragBitmap());
             }
         }
         return false;
    }
-
-    private boolean toggleTouchActive() {
-        mTouchActive = !mTouchActive;
-        return !mTouchActive;
-    }
-
-    private void hideCragTouch() {
-
-    }
 
     private void saveCragTouch() {
         try {
             long cragid = (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID);
             Node node = new Node(-1, cragid, mCurrentTouchCoords[0], mCurrentTouchCoords[1]);
             node.addNode(getBaseContext());
-
-            //ToDo navigate up to final location?
-            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-            intent.putExtra(Node.EXTRA_TAG, (long) node.properties.get(NodeContract.NodeEntry._ID));
-            startActivity(intent);
+            toggleTouchActive();
+            mImageView.setImageBitmap(getPopulatedCragBitmap());
         } catch (Exception ex) {
             Log.d(TAG, "Save node click failed", ex);
         }
@@ -162,15 +148,46 @@ public class EditCragImageActivity extends AppCompatActivity {
         mActionBar.setDisplayOptions(mActionBarOptions);
     }
 
+    private Bitmap getPopulatedCragBitmap() {
+        long cragId = (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID);
+        HashMap<String, Node> nodes = Node.getAllNodesByCragId(getApplicationContext(), cragId);
+        try {
+            Bitmap cragImage = BitmapFactory.decodeFile(mOriginalImage.toString());
+            Bitmap cragNode = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_cancel);
+            Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
+            Canvas canvas = new Canvas(resultBitmap);
+            canvas.drawBitmap(cragImage, new Matrix(), null);
+            for (Map.Entry<String, Node> entry : nodes.entrySet()){
+                Node node = entry.getValue();
+                canvas.drawBitmap(cragNode, (float) node.properties.get(NodeContract.NodeEntry.COLUMN_NAME_X_COORD) - (cragNode.getWidth() / 2), (float) node.properties.get(NodeContract.NodeEntry.COLUMN_NAME_Y_COORD) - (cragNode.getHeight() / 2), new Paint());
+            }
+            return resultBitmap;
+        } catch (Exception ex) {
+            Log.d(TAG, "Bitmap population error", ex);
+            return Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+        }
+    }
+
     private void getViewCoords(MotionEvent event, TouchImageView imageView) {
         Matrix invertMatrix = new Matrix();
         imageView.getImageMatrix().invert(invertMatrix);
         mCurrentTouchCoords = new float[] {event.getX(), event.getY()};
         invertMatrix.mapPoints(mCurrentTouchCoords);
         //This should fix density issues
-        float density = getResources().getDisplayMetrics().density;
-        mCurrentTouchCoords[0] *= density;
-        mCurrentTouchCoords[1] *= density;
+        float scaleX = imageView.getScaleX();
+        float scaleY = imageView.getScaleY();
+        mCurrentTouchCoords[0] *= scaleX;
+        mCurrentTouchCoords[1] *= scaleY;
 
+    }
+
+    private boolean toggleTouchActive() {
+        if (mTouchActive) {
+            hideAddCragActionBar();
+        } else {
+            showAddCragActionBar();
+        }
+        mTouchActive = !mTouchActive;
+        return !mTouchActive;
     }
 }

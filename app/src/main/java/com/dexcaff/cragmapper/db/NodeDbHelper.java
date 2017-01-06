@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class NodeDbHelper extends SQLiteOpenHelper
 {
     public static final String DB_NAME = "com.dexcaff.todolist.db";
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 5;
 
     public NodeDbHelper(Context context)
     {
@@ -26,9 +26,10 @@ public class NodeDbHelper extends SQLiteOpenHelper
         db.execSQL("CREATE TABLE " + NodeContract.NodeEntry.TABLE_NAME + " (" +
                 NodeContract.NodeEntry._ID + " INTEGER PRIMARY KEY," +
                 NodeContract.NodeEntry.COLUMN_NAME_CRAG_ID + " INTEGER," +
-                "FOREIGN KEY(" + NodeContract.NodeEntry.COLUMN_NAME_CRAG_ID + ") REFERENCES " + CragContract.CragEntry.TABLE_NAME + "(" + CragContract.CragEntry._ID + ")," +
                 NodeContract.NodeEntry.COLUMN_NAME_X_COORD + " REAL," +
-                NodeContract.NodeEntry.COLUMN_NAME_Y_COORD + " REAL )");
+                NodeContract.NodeEntry.COLUMN_NAME_Y_COORD + " REAL," +
+                "FOREIGN KEY(" + NodeContract.NodeEntry.COLUMN_NAME_CRAG_ID + ") REFERENCES " + CragContract.CragEntry.TABLE_NAME + "(" + CragContract.CragEntry._ID + "))"
+        );
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)

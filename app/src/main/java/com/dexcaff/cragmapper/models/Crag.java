@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.db.CragDbHelper;
+import com.dexcaff.cragmapper.db.NodeContract;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class Crag {
     public static final String EXTRA_TAG = "crag_id";
     public HashMap<String, Object> properties;
 
+    //Todo multiple constructors?
     public Crag(long id, String name, String imageUri, Float rating) {
         this.properties = new HashMap<>();
         this.properties.put(CragContract.CragEntry._ID, id);
@@ -95,28 +97,27 @@ public class Crag {
         CragDbHelper dbHelper = new CragDbHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] columns = CragContract.getColumns();
+        Crag crag = new Crag(0, "", "", (float) 0);
+        //Get Crag DB pass
         Cursor cursor = db.query(
                 CragContract.CragEntry.TABLE_NAME,
                 columns,
                 CragContract.CragEntry._ID + " = ?",
                 new String[]{Long.toString(id)},
-                null,
-                null,
-                null,
-                "1");
+                null, null, null, "1");
         if (cursor.moveToNext()) {
-            Crag crag = new Crag(
+            crag = new Crag(
                     id,
                     cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE)),
                     cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE)),
                     cursor.getFloat(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_RATING))
             );
             cursor.close();
-            db.close();
-            return crag;
-        } else {
-            return new Crag(0, "", "", (float) 0);
         }
+        db.close();
+        //Get Nodes DB pass
+        crag.properties.put(NodeContract.NodeEntry.TABLE_NAME, Node.getAllNodesByCragId(context, id));
+        return crag;
     }
 
     public static ArrayList<Crag> getAllCrags(Context context) {

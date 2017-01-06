@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class CragDbHelper extends SQLiteOpenHelper
 {
     public static final String DB_NAME = "com.dexcaff.todolist.db";
-    public static final int DB_VERSION = 3;
+    public static final int DB_VERSION = 5;
 
     public CragDbHelper(Context context)
     {

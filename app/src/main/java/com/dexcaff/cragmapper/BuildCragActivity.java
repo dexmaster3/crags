@@ -29,7 +29,9 @@ import java.util.Locale;
 public class BuildCragActivity extends AppCompatActivity {
     private ImageButton mCragImageButton;
     private String mCurrentPhotoPath;
+    private String mTempPhotoPath;
     private long mCragId;
+    private static final int CAMERA_CAPTURE = 1;
     private static final String TAG = "BuildCragActivity";
 
     @Override
@@ -97,9 +99,10 @@ public class BuildCragActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            File file = new File(mCurrentPhotoPath);
+        if (requestCode == CAMERA_CAPTURE && resultCode == RESULT_OK) {
+            File file = new File(mTempPhotoPath);
             mCragImageButton.setImageURI(Uri.fromFile(file));
+            mCurrentPhotoPath = mTempPhotoPath;
         }
     }
 
@@ -118,7 +121,7 @@ public class BuildCragActivity extends AppCompatActivity {
                         "com.dexcaff.cragmapper.fileprovider",
                         photoFile);
                 cragImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(cragImageIntent, 1);
+                startActivityForResult(cragImageIntent, CAMERA_CAPTURE);
             }
         }
     }
@@ -132,7 +135,7 @@ public class BuildCragActivity extends AppCompatActivity {
                 ".jpg",
                 storageDir
         );
-        mCurrentPhotoPath = image.getAbsolutePath();
+        mTempPhotoPath = image.getAbsolutePath();
         return image;
     }
 

@@ -10,7 +10,6 @@ import android.util.Log;
 import com.dexcaff.cragmapper.db.NodeContract;
 import com.dexcaff.cragmapper.db.NodeDbHelper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -118,29 +117,27 @@ public class Node {
         }
     }
 
-    public static ArrayList<Node> getAllNodes(Context context) {
+    public static HashMap<String, Node> getAllNodesByCragId(Context context, long cragId) {
         String[] reqColumns = NodeContract.getColumns();
         NodeDbHelper dbHelper = new NodeDbHelper(context);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         Cursor c = db.query(
                 NodeContract.NodeEntry.TABLE_NAME,
                 reqColumns,
-                null,
-                null,
-                null,
-                null,
-                NodeContract.NodeEntry._ID + " ASC"
-        );
+                NodeContract.NodeEntry.COLUMN_NAME_CRAG_ID + " = ?",
+                new String[] {Long.toString(cragId)},
+                null, null, null);
 
-        ArrayList<Node> nodeList = new ArrayList<>();
+        HashMap<String, Node> nodeList = new HashMap<>();
         while (c.moveToNext()) {
+            long nodeId = c.getLong(c.getColumnIndex(NodeContract.NodeEntry._ID));
             Node node = new Node(
-                    c.getLong(c.getColumnIndex(NodeContract.NodeEntry._ID)),
+                    nodeId,
                     c.getLong(c.getColumnIndex(NodeContract.NodeEntry.COLUMN_NAME_CRAG_ID)),
                     c.getFloat(c.getColumnIndex(NodeContract.NodeEntry.COLUMN_NAME_X_COORD)),
                     c.getFloat(c.getColumnIndex(NodeContract.NodeEntry.COLUMN_NAME_Y_COORD))
             );
-            nodeList.add(node);
+            nodeList.put(Long.toString(nodeId), node);
         }
         c.close();
         db.close();
