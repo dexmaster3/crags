@@ -4,9 +4,6 @@
     android:layout_height="match_parent"
     tools:context="com.dexcaff.cragmapper.EditCragImageActivity">
 
-    <!-- The primary full-screen view. This can be replaced with whatever view
-         is needed to present your content, e.g. VideoView, SurfaceView,
-         TextureView, etc. -->
     <com.dexcaff.cragmapper.libs.TouchImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -17,7 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dexcaff.cragmapper.db.CragContract;
-import com.dexcaff.cragmapper.db.NodeContract;
+import com.dexcaff.cragmapper.libs.NodeCircle;
 import com.dexcaff.cragmapper.libs.TouchImageView;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
@@ -87,11 +86,13 @@ public class EditCragImageActivity extends AppCompatActivity {
             if (!toggleTouchActive()) {
                 getViewCoords(event, mImageView);
                 Bitmap cragImage = getPopulatedCragBitmap();
-                Bitmap cragNode = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_cancel);
+//                Bitmap cragNode = BitmapFactory.decodeResource(getResources(), R.drawable.node_circle);
                 Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
                 Canvas canvas = new Canvas(resultBitmap);
                 canvas.drawBitmap(cragImage, new Matrix(), null);
-                canvas.drawBitmap(cragNode, mCurrentTouchCoords[0] - (cragNode.getWidth() / 2), mCurrentTouchCoords[1] - (cragNode.getHeight() / 2), new Paint());
+//                NodeCircle testr = new NodeCircle(getApplicationContext(), null);
+//                testr.draw(canvas);
+//                canvas.drawBitmap(cragNode, mCurrentTouchCoords[0] - (cragNode.getWidth() / 2), mCurrentTouchCoords[1] - (cragNode.getHeight() / 2), new Paint());
 
                 mImageView.setImageBitmap(resultBitmap);
             } else {
@@ -153,13 +154,14 @@ public class EditCragImageActivity extends AppCompatActivity {
         HashMap<String, Node> nodes = Node.getAllNodesByCragId(getApplicationContext(), cragId);
         try {
             Bitmap cragImage = BitmapFactory.decodeFile(mOriginalImage.toString());
-            Bitmap cragNode = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_cancel);
             Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
             Canvas canvas = new Canvas(resultBitmap);
+
             canvas.drawBitmap(cragImage, new Matrix(), null);
             for (Map.Entry<String, Node> entry : nodes.entrySet()){
                 Node node = entry.getValue();
-                canvas.drawBitmap(cragNode, (float) node.properties.get(NodeContract.NodeEntry.COLUMN_NAME_X_COORD) - (cragNode.getWidth() / 2), (float) node.properties.get(NodeContract.NodeEntry.COLUMN_NAME_Y_COORD) - (cragNode.getHeight() / 2), new Paint());
+                View ragy = new NodeCircle(getApplicationContext(), null, node);
+                ragy.draw(canvas);
             }
             return resultBitmap;
         } catch (Exception ex) {
