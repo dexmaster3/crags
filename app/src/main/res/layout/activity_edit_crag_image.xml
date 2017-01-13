@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.dexcaff.cragmapper.EditCragImageActivity">
+    tools:context="com.dexcaff.cragmapper.EditCragImageActivity"
+    android:id="@+id/edit_img_frame">
 
     <com.dexcaff.cragmapper.libs.TouchImageView
         android:layout_width="match_parent"

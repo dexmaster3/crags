@@ -1,9 +1,8 @@
 package com.dexcaff.cragmapper;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -14,8 +13,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.dexcaff.cragmapper.db.CragContract;
+import com.dexcaff.cragmapper.libs.EditCragImageView;
 import com.dexcaff.cragmapper.libs.NodeCircle;
 import com.dexcaff.cragmapper.libs.TouchImageView;
 import com.dexcaff.cragmapper.models.Crag;
@@ -37,6 +38,7 @@ public class EditCragImageActivity extends AppCompatActivity {
     private int mActionBarOptions;
     private boolean mTouchActive;
     private float[] mCurrentTouchCoords;
+    private FrameLayout mFramelay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +46,21 @@ public class EditCragImageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mActionBar = getSupportActionBar();
         mActionBarOptions = mActionBar.getDisplayOptions();
-        mCurrentCrag = Crag.getCragById(getBaseContext(), getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
-
-        setContentView(R.layout.activity_edit_crag_image);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        mCurrentCrag = Crag.getCragById(getBaseContext(), getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
         mOriginalImage = Uri.parse((String) mCurrentCrag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE));
+        View contentView = new EditCragImageView(this, mOriginalImage.toString());
+        setContentView(R.layout.activity_edit_crag_image);
+
+        mFramelay = (FrameLayout) findViewById(R.id.edit_img_frame);
+        getPopulatedCragBitmap();
+
         mImageView = (TouchImageView) findViewById(R.id.crag_edit_image_view);
-        mImageView.setImageBitmap(getPopulatedCragBitmap());
+        mImageView.setImageDrawable(getPopulatedCragBitmap());
         mImageView.setOnTouchListener(
                 new View.OnTouchListener() {
                     @Override
@@ -85,18 +92,18 @@ public class EditCragImageActivity extends AppCompatActivity {
         if (action == MotionEvent.ACTION_DOWN) {
             if (!toggleTouchActive()) {
                 getViewCoords(event, mImageView);
-                Bitmap cragImage = getPopulatedCragBitmap();
+//                Bitmap cragImage = getPopulatedCragBitmap();
 //                Bitmap cragNode = BitmapFactory.decodeResource(getResources(), R.drawable.node_circle);
-                Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
-                Canvas canvas = new Canvas(resultBitmap);
-                canvas.drawBitmap(cragImage, new Matrix(), null);
+//                Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
+//                Canvas canvas = new Canvas(resultBitmap);
+//                canvas.drawBitmap(cragImage, new Matrix(), null);
 //                NodeCircle testr = new NodeCircle(getApplicationContext(), null);
 //                testr.draw(canvas);
 //                canvas.drawBitmap(cragNode, mCurrentTouchCoords[0] - (cragNode.getWidth() / 2), mCurrentTouchCoords[1] - (cragNode.getHeight() / 2), new Paint());
 
-                mImageView.setImageBitmap(resultBitmap);
+//                mImageView.setImageBitmap(resultBitmap);
             } else {
-                mImageView.setImageBitmap(getPopulatedCragBitmap());
+                mImageView.setImageDrawable(getPopulatedCragBitmap());
             }
         }
         return false;
@@ -108,7 +115,7 @@ public class EditCragImageActivity extends AppCompatActivity {
             Node node = new Node(-1, cragid, mCurrentTouchCoords[0], mCurrentTouchCoords[1]);
             node.addNode(getBaseContext());
             toggleTouchActive();
-            mImageView.setImageBitmap(getPopulatedCragBitmap());
+            mImageView.setImageDrawable(getPopulatedCragBitmap());
         } catch (Exception ex) {
             Log.d(TAG, "Save node click failed", ex);
         }
@@ -149,24 +156,23 @@ public class EditCragImageActivity extends AppCompatActivity {
         mActionBar.setDisplayOptions(mActionBarOptions);
     }
 
-    private Bitmap getPopulatedCragBitmap() {
+    private BitmapDrawable getPopulatedCragBitmap() {
         long cragId = (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID);
-        HashMap<String, Node> nodes = Node.getAllNodesByCragId(getApplicationContext(), cragId);
+        HashMap<String, Node> nodes = Node.getAllNodesByCragId(this, cragId);
         try {
-            Bitmap cragImage = BitmapFactory.decodeFile(mOriginalImage.toString());
-            Bitmap resultBitmap = Bitmap.createBitmap(cragImage.getWidth(),cragImage.getHeight(), cragImage.getConfig());
-            Canvas canvas = new Canvas(resultBitmap);
-
-            canvas.drawBitmap(cragImage, new Matrix(), null);
+            EditCragImageView cragImageView = new EditCragImageView(this, mOriginalImage.toString());
             for (Map.Entry<String, Node> entry : nodes.entrySet()){
                 Node node = entry.getValue();
-                View ragy = new NodeCircle(getApplicationContext(), null, node);
-                ragy.draw(canvas);
+                NodeCircle ragy = new NodeCircle(this, null, node);
+
+                mFramelay.addView(ragy);
+//                ragy.draw(canvas);
+                break;
             }
-            return resultBitmap;
+            return new BitmapDrawable(getResources(), Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444));
         } catch (Exception ex) {
-            Log.d(TAG, "Bitmap population error", ex);
-            return Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+            Log.d(TAG, "Canvas population error", ex);
+            return new BitmapDrawable(getResources(), Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444));
         }
     }
 
