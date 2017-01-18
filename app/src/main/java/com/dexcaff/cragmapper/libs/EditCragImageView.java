@@ -4,17 +4,19 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.GestureDetectorCompat;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dexcaff.cragmapper.EditCragImageActivity;
+import com.dexcaff.cragmapper.R;
 import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.db.NodeContract;
 import com.dexcaff.cragmapper.models.Crag;
@@ -34,15 +36,18 @@ public class EditCragImageView extends View {
     private final static String TAG = "EditCragImageView";
     private Crag mCurrentCrag;
     private Node mTempNode;
+    private Context mContext;
     private float mScale, mStartW, mStartH;
+
+    private GestureDetectorCompat mGestureDetector;
+    private float mTempX, mTempY;
 
     private Rect mContentRect = new Rect();
     private BitmapDrawable mBackground;
-    private ShapeDrawable mDrawableOval = new ShapeDrawable(new OvalShape());
-    private Paint mNodePaint = new Paint();
-    private ShapeDrawable mNodeShape = new ShapeDrawable(new OvalShape());
+    private Drawable mNodeDrawable;
     private RectF mNodeRectF = new RectF();
     private Rect mNodeRect = new Rect();
+    private int mNodeAlpha = 0;
 
     public EditCragImageView(Context context) {
         this(context, new Crag(0, "", "", 0f));
@@ -51,10 +56,13 @@ public class EditCragImageView extends View {
     @TargetApi(16)
     public EditCragImageView(Context context, Crag currentCrag) {
         super(context);
+        mContext = context;
         mCurrentCrag = currentCrag;
         String originalImage = (String) mCurrentCrag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE);
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mBackground = new BitmapDrawable(getResources(), originalImage);
+        mNodeDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.nodeoval, null);
+        mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
         invalidate();
     }
 
@@ -66,10 +74,15 @@ public class EditCragImageView extends View {
 
         drawNodes(canvas);
 
-        mDrawableOval.setBounds(10, 50, canvas.getWidth() / 4, canvas.getHeight() / 8);
-        mDrawableOval.getPaint().setColor(Color.BLUE);
-        mDrawableOval.setAlpha(150);
-        mDrawableOval.draw(canvas);
+        mNodeDrawable.setBounds(10, 50, canvas.getWidth() / 4, canvas.getHeight() / 8);
+        mNodeDrawable.setAlpha(mNodeAlpha);
+        mNodeDrawable.draw(canvas);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean retVal = mGestureDetector.onTouchEvent(event);
+        return retVal || super.onTouchEvent(event);
     }
 
     @Override
@@ -78,6 +91,17 @@ public class EditCragImageView extends View {
         Rect imageRect = new Rect();
         getScaledImageRect().round(imageRect);
         mContentRect.set(imageRect);
+    }
+
+    public void setNodeAlpha(int value) {
+        mNodeAlpha = value;
+        invalidate();
+    }
+
+    public void addAfterTempNodeSaved(Node node) {
+        HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(NodeContract.NodeEntry.TABLE_NAME);
+        nodes.put(Long.toString((long)node.properties.get(NodeContract.NodeEntry._ID)), node);
+        mCurrentCrag.properties.put(NodeContract.NodeEntry.TABLE_NAME, nodes);
     }
 
     private RectF getScaledImageRect() {
@@ -106,38 +130,58 @@ public class EditCragImageView extends View {
 
     private void drawNodes(Canvas canvas) {
         if (mTempNode != null) {
-            drawNode(canvas, mTempNode);
+            drawNode(canvas, mTempNode, true);
         }
         HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(NodeContract.NodeEntry.TABLE_NAME);
         for (Map.Entry<String, Node> entry : nodes.entrySet()){
             Node node = entry.getValue();
-            drawNode(canvas, node);
+            drawNode(canvas, node, false);
         }
     }
 
-    private void drawNode(Canvas canvas, Node node) {
+    private void drawNode(Canvas canvas, Node node, boolean tempNode) {
         float[] coords = getScaledNodeCoords(node);
         mNodeRectF.set(coords[0] - 20, coords[1] - 20, coords[0] + 20, coords[1] + 20);
         mNodeRectF.round(mNodeRect);
-        mNodeShape.setBounds(mNodeRect);
-        mNodePaint.setColor(Color.MAGENTA);
-        mNodeShape.getPaint().set(mNodePaint);
-        mNodeShape.draw(canvas);
+        mNodeDrawable.setBounds(mNodeRect);
+        mNodeDrawable.setAlpha(255);
+        if (tempNode) {
+            mNodeDrawable.setAlpha(mNodeAlpha);
+        }
+        mNodeDrawable.draw(canvas);
     }
 
-    public boolean drawTempNode(MotionEvent event) {
-        float xcoord = event.getX();
-        float ycoord = event.getY();
-        xcoord = (xcoord - mStartW) / mScale;
-        ycoord = (ycoord - mStartH) / mScale;
+    private boolean drawTempNode(MotionEvent event) {
+        mTempX = event.getX();
+        mTempY = event.getY();
+        float xcoord = (mTempX - mStartW) / mScale;
+        float ycoord = (mTempY - mStartH) / mScale;
         if (xcoord < 0 || ycoord < 0 || event.getX() > mContentRect.right || event.getY() > mContentRect.bottom) {
-            mTempNode = null;
             return false;
-        } else {
-            mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID), xcoord, ycoord);
         }
+        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID), xcoord, ycoord);
         invalidate();
         return true;
+    }
+
+    private boolean drawTempNode(float distanceX, float distanceY) {
+        mTempX -= distanceX;
+        mTempY -= distanceY;
+        float xcoord = (mTempX - mStartW) / mScale;
+        float ycoord = (mTempY - mStartH) / mScale;
+        if (xcoord < 0 || ycoord < 0 || mTempX > mContentRect.right || mTempY > mContentRect.bottom) {
+            return false;
+        }
+        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID), xcoord, ycoord);
+        invalidate();
+        return true;
+    }
+
+    public Node getTempNode() throws Exception {
+        if (mTempNode == null) {
+            throw new Exception("mTempNode is somehow not set on Save click");
+        }
+        return mTempNode;
     }
 
     public void removeTempNode() {
@@ -155,4 +199,26 @@ public class EditCragImageView extends View {
         coords[1] += mContentRect.top;
         return coords;
     }
+
+    private final GestureDetector.SimpleOnGestureListener mGestureListener
+            = new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            drawTempNode(distanceX, distanceY);
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            if (drawTempNode(e)) {
+                ((EditCragImageActivity) mContext).showAddCragActionBar();
+            }
+            return true;
+        }
+    };
 }

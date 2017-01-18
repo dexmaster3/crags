@@ -1,16 +1,18 @@
 package com.dexcaff.cragmapper;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.libs.EditCragImageView;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
@@ -25,8 +27,10 @@ public class EditCragImageActivity extends AppCompatActivity {
     private Crag mCurrentCrag;
     private android.support.v7.app.ActionBar mActionBar;
     private int mActionBarOptions;
-    private boolean mTouchActive = false;
     private float[] mCurrentTouchCoords;
+
+    private boolean mIsEndingAnimator;
+    private AnimatorSet mAnim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +43,34 @@ public class EditCragImageActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        mCurrentCrag = Crag.getCragById(getBaseContext(), getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
+        mCurrentCrag = Crag.getCragById(this, getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
         mContentView = new EditCragImageView(this, mCurrentCrag);
-        mContentView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return addCragTouch(event);
-            }
-        });
         setContentView(mContentView);
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
+    protected void onResume() {
+        super.onResume();
+        mIsEndingAnimator = false;
+        mAnim = new AnimatorSet();
+
+        ObjectAnimator darkerFade = ObjectAnimator.ofInt(mContentView, "nodeAlpha", 30, 255);
+        darkerFade.setDuration(500);
+
+        ObjectAnimator lighterFade = ObjectAnimator.ofInt(mContentView, "nodeAlpha", 255, 30);
+        lighterFade.setDuration(500);
+
+        mAnim.playSequentially(darkerFade, lighterFade);
+        mAnim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                if (!mIsEndingAnimator) {
+                    mAnim.start();
+                }
+            }
+        });
+        mAnim.start();
     }
 
     @Override
@@ -66,24 +84,14 @@ public class EditCragImageActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean addCragTouch(MotionEvent event) {
-        final int action = event.getAction();
-        if (action == MotionEvent.ACTION_DOWN) {
-            if (!mTouchActive && mContentView.drawTempNode(event)) {
-                showAddCragActionBar();
-            }
-        }
-        return false;
-   }
-
     private void saveCragButton() {
         try {
-            long cragid = (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID);
-            Node node = new Node(-1, cragid, mCurrentTouchCoords[0], mCurrentTouchCoords[1]);
-            node.addNode(getBaseContext());
+            Node node = mContentView.getTempNode();
+            mContentView.addAfterTempNodeSaved(node.addNode(this));
+            mContentView.removeTempNode();
             hideAddCragActionBar();
         } catch (Exception ex) {
-            Log.d(TAG, "Save node click failed", ex);
+            Log.e(TAG, "Save node click failed", ex);
         }
     }
 
@@ -92,10 +100,7 @@ public class EditCragImageActivity extends AppCompatActivity {
         hideAddCragActionBar();
     }
 
-    private void showAddCragActionBar() {
-        if (mTouchActive) {
-            return;
-        }
+    public void showAddCragActionBar() {
         mActionBar.setCustomView(R.layout.entity_save_toolbar);
         View actionBarView = mActionBar.getCustomView();
         actionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
@@ -123,15 +128,10 @@ public class EditCragImageActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
         mActionBar.setDisplayHomeAsUpEnabled(true);
-        mTouchActive = true;
     }
 
     private void hideAddCragActionBar() {
-        if (!mTouchActive) {
-            return;
-        }
         mActionBar.setDisplayShowCustomEnabled(false);
         mActionBar.setDisplayOptions(mActionBarOptions);
-        mTouchActive = false;
     }
 }
