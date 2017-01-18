@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void generateCragsList()
     {
-        ArrayList<Crag> cragList = Crag.getAllCrags(getBaseContext());
+        ArrayList<Crag> cragList = Crag.getAllCrags(this);
         //Apply database info to views
         mCragListView = (ListView) findViewById(R.id.crags_list);
         if (mAdapter == null) {

@@ -10,7 +10,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/crag_list_title"
-        android:text="Test"
         android:textSize="20sp"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"/>
@@ -23,14 +22,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <Button
-        android:id="@+id/crag_list_edit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/crag_list_rating"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,5 +31,23 @@
         android:layout_alignParentEnd="true"
         android:id="@+id/crag_list_image"
         android:contentDescription="@string/crag_image"/>
+
+    <Button
+        android:id="@+id/crag_list_edit_button"
+        android:text="@string/edit_crag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/crag_list_image"
+        android:layout_toStartOf="@+id/crag_list_image" />
+
+    <Button
+        android:text="@string/delete_crag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/crag_list_edit_button"
+        android:layout_alignLeft="@+id/crag_list_edit_button"
+        android:layout_alignStart="@+id/crag_list_edit_button"
+        android:id="@+id/crag_list_delete_button" />
 
 </RelativeLayout>

@@ -29,9 +29,11 @@ import java.util.ArrayList;
 
 public class CragsAdapter extends ArrayAdapter<Crag> {
     private static final String TAG = "CragAdapter";
+    private Context mContext;
 
     public CragsAdapter(Context context, ArrayList<Crag> crags) {
-        super(context, 0, crags);
+        super(context, R.layout.crag_list_item, crags);
+        mContext = context;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
         final long cragId = (long) crag.properties.get(CragContract.CragEntry._ID);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext())
+            convertView = LayoutInflater.from(mContext)
                     .inflate(R.layout.crag_list_item, parent, false);
         }
         TextView cragTitle = (TextView) convertView.findViewById(R.id.crag_list_title);
@@ -52,9 +54,9 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent editCragIntent = new Intent(getContext(), BuildCragActivity.class);
+                        Intent editCragIntent = new Intent(mContext, BuildCragActivity.class);
                         editCragIntent.putExtra(Crag.EXTRA_TAG, cragId);
-                        getContext().startActivity(editCragIntent);
+                        mContext.startActivity(editCragIntent);
                     }
                 }
         );
@@ -63,14 +65,14 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
                     @Override
                     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                         try {
-                            Crag crag = Crag.getCragById(getContext(), cragId);
+                            Crag crag = Crag.getCragById(mContext, cragId);
                             if ((float) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_RATING) != rating) {
                                 crag.properties.put(CragContract.CragEntry.COLUMN_NAME_RATING, rating);
-                                crag.addCrag(getContext());
+                                crag.addCrag(mContext);
                                 ratingBar.setRating(rating);
                             }
                         } catch (Exception ex) {
-                            Log.d(TAG, "Rating bar change save failed", ex);
+                            Log.e(TAG, "Rating bar change save failed", ex);
                         }
                     }
                 }

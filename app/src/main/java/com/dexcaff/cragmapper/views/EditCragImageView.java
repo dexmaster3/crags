@@ -1,4 +1,4 @@
-package com.dexcaff.cragmapper.libs;
+package com.dexcaff.cragmapper.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;

@@ -5,15 +5,14 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.dexcaff.cragmapper.libs.EditCragImageView;
+import com.dexcaff.cragmapper.db.CragContract;
+import com.dexcaff.cragmapper.views.EditCragImageView;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
 
@@ -24,27 +23,26 @@ import com.dexcaff.cragmapper.models.Node;
 public class EditCragImageActivity extends AppCompatActivity {
     private final static String TAG = "EditCragImageActivity";
     private EditCragImageView mContentView;
-    private Crag mCurrentCrag;
     private android.support.v7.app.ActionBar mActionBar;
     private int mActionBarOptions;
-    private float[] mCurrentTouchCoords;
+    private boolean mActionBarActive = false;
 
     private boolean mIsEndingAnimator;
     private AnimatorSet mAnim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //todo image resizing etc..
         super.onCreate(savedInstanceState);
+        Crag currentCrag = Crag.getCragById(this, getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
         mActionBar = getSupportActionBar();
         mActionBarOptions = mActionBar.getDisplayOptions();
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        if (mActionBar != null) {
+            mActionBar.setDisplayHomeAsUpEnabled(true);
+            String actionBarTitle = getString(R.string.title_activity_edit_crag_image) + " " + currentCrag.properties.get(CragContract.CragEntry.COLUMN_NAME_TITLE);
+            mActionBar.setTitle(actionBarTitle);
         }
 
-        mCurrentCrag = Crag.getCragById(this, getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
-        mContentView = new EditCragImageView(this, mCurrentCrag);
+        mContentView = new EditCragImageView(this, currentCrag);
         setContentView(mContentView);
     }
 
@@ -77,9 +75,13 @@ public class EditCragImageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            // This ID represents the Home or Up button.
-            NavUtils.navigateUpFromSameTask(this);
-            return true;
+            if (mActionBarActive) {
+                cancelButton();
+                return true;
+            } else {
+                onBackPressed();
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -128,10 +130,12 @@ public class EditCragImageActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
         mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBarActive = true;
     }
 
     private void hideAddCragActionBar() {
         mActionBar.setDisplayShowCustomEnabled(false);
         mActionBar.setDisplayOptions(mActionBarOptions);
+        mActionBarActive = false;
     }
 }

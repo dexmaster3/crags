@@ -151,19 +151,19 @@ public class BuildCragActivity extends AppCompatActivity {
                     mCurrentPhotoPath,
                     cragRatingBar.getRating()
             );
-            crag.addCrag(getBaseContext());
+            crag.addCrag(this);
 
             //Go to picture edit
-            Intent intent = new Intent(getBaseContext(), EditCragImageActivity.class);
+            Intent intent = new Intent(this, EditCragImageActivity.class);
             intent.putExtra(Crag.EXTRA_TAG, mCragId);
             startActivity(intent);
         } catch (Exception ex) {
-            Log.d(TAG, "Save crag click failed", ex);
+            Log.e(TAG, "Save crag click failed", ex);
         }
     }
 
     private void setCragData() {
-        Crag crag = Crag.getCragById(getBaseContext(), mCragId);
+        Crag crag = Crag.getCragById(this, mCragId);
         mCragImageButton = (ImageButton) findViewById(R.id.crag_edit_image);
         TextView cragTitle = (TextView) findViewById(R.id.crag_edit_title);
         RatingBar cragRating = (RatingBar) findViewById(R.id.crag_edit_rating);
