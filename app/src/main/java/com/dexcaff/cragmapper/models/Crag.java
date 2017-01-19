@@ -5,11 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.dexcaff.cragmapper.db.CragContract;
-import com.dexcaff.cragmapper.db.CragDbHelper;
-import com.dexcaff.cragmapper.db.NodeContract;
+import com.dexcaff.cragmapper.db.DbHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,26 +20,49 @@ import java.util.HashMap;
  *          Package: com.dexcaff.cragmapper.models
  */
 
-public class Crag {
+public class Crag implements BaseColumns {
     public static final String TAG = "models/Crag";
+
     public static final String EXTRA_TAG = "crag_id";
     public HashMap<String, Object> properties;
+
+    public static final String TABLE_NAME = "crags";
+    public static final String KEY_TITLE = "title";
+    public static final String KEY_IMAGE = "image";
+    public static final String KEY_RATING = "rating";
+
+    public static String[] getColumns() {
+        return new String[]{
+                _ID,
+                KEY_TITLE,
+                KEY_IMAGE,
+                KEY_RATING
+        };
+    }
+
+    public static String createTable() {
+        return "CREATE TABLE " + TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                KEY_TITLE + " TEXT," +
+                KEY_RATING + " REAL," +
+                KEY_IMAGE + " TEXT )";
+    }
 
     //Todo multiple constructors?
     public Crag(long id, String name, String imageUri, Float rating) {
         this.properties = new HashMap<>();
-        this.properties.put(CragContract.CragEntry._ID, id);
-        this.properties.put(CragContract.CragEntry.COLUMN_NAME_TITLE, name);
-        this.properties.put(CragContract.CragEntry.COLUMN_NAME_IMAGE, imageUri);
-        this.properties.put(CragContract.CragEntry.COLUMN_NAME_RATING, rating);
+        this.properties.put(_ID, id);
+        this.properties.put(KEY_TITLE, name);
+        this.properties.put(KEY_IMAGE, imageUri);
+        this.properties.put(KEY_RATING, rating);
     }
 
     public Bundle cragToBundle() {
         Bundle bundle = new Bundle();
-        bundle.putLong(CragContract.CragEntry._ID, (long) this.properties.get(CragContract.CragEntry._ID));
-        bundle.putString(CragContract.CragEntry.COLUMN_NAME_TITLE, (String) this.properties.get(CragContract.CragEntry.COLUMN_NAME_TITLE));
-        bundle.putString(CragContract.CragEntry.COLUMN_NAME_IMAGE, (String) this.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE));
-        bundle.putFloat(CragContract.CragEntry.COLUMN_NAME_RATING, (float) this.properties.get(CragContract.CragEntry.COLUMN_NAME_RATING));
+        bundle.putLong(_ID, (long) this.properties.get(_ID));
+        bundle.putString(KEY_TITLE, (String) this.properties.get(KEY_TITLE));
+        bundle.putString(KEY_IMAGE, (String) this.properties.get(KEY_IMAGE));
+        bundle.putFloat(KEY_RATING, (float) this.properties.get(KEY_RATING));
         return bundle;
     }
 
@@ -51,39 +73,39 @@ public class Crag {
 
     private static ContentValues bundleToContentValues(Bundle crag) {
         ContentValues values = new ContentValues();
-        values.put(CragContract.CragEntry.COLUMN_NAME_TITLE, crag.getString(CragContract.CragEntry.COLUMN_NAME_TITLE, ""));
-        values.put(CragContract.CragEntry.COLUMN_NAME_IMAGE, crag.getString(CragContract.CragEntry.COLUMN_NAME_IMAGE, ""));
-        values.put(CragContract.CragEntry.COLUMN_NAME_RATING, crag.getFloat(CragContract.CragEntry.COLUMN_NAME_RATING, 0));
-        //values.put(CragContract.CragEntry._ID, crag.getInt(CragContract.CragEntry._ID, 0));
+        values.put(KEY_TITLE, crag.getString(KEY_TITLE, ""));
+        values.put(KEY_IMAGE, crag.getString(KEY_IMAGE, ""));
+        values.put(KEY_RATING, crag.getFloat(KEY_RATING, 0));
+        //values.put(_ID, crag.getInt(_ID, 0));
         //Don't see any reason to ever add in the AUTOINCREMENT UNIQUE ID
         return values;
     }
 
     public Crag addCrag(Context context) throws Exception {
-        if ((long) this.properties.get(CragContract.CragEntry._ID) > -1) {
+        if ((long) this.properties.get(_ID) > -1) {
             return updateCrag(context);
         }
         ContentValues values = this.cragToContentValues();
-        CragDbHelper dbHelper = new CragDbHelper(context);
+        DbHelper dbHelper = new DbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long rowId = db.insert(CragContract.CragEntry.TABLE_NAME, null, values);
+        long rowId = db.insert(TABLE_NAME, null, values);
         if (rowId == -1) {
             throw new Exception("Add Crag sql insert failed");
         } else {
-            this.properties.put(CragContract.CragEntry._ID, rowId);
+            this.properties.put(_ID, rowId);
         }
         return this;
     }
 
     public Crag updateCrag(Context context) throws Exception {
         ContentValues values = this.cragToContentValues();
-        CragDbHelper dbHelper = new CragDbHelper(context);
+        DbHelper dbHelper = new DbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long rowId = db.update(
-                CragContract.CragEntry.TABLE_NAME,
+                TABLE_NAME,
                 values,
-                CragContract.CragEntry._ID + " = ?",
-                new String[]{Long.toString((long) this.properties.get(CragContract.CragEntry._ID))}
+                _ID + " = ?",
+                new String[]{Long.toString((long) this.properties.get(_ID))}
         );
         if (rowId == -1) {
             throw new Exception("Add Crag sql update failed");
@@ -94,53 +116,53 @@ public class Crag {
     }
 
     public static Crag getCragById(Context context, long id) {
-        CragDbHelper dbHelper = new CragDbHelper(context);
+        DbHelper dbHelper = new DbHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] columns = CragContract.getColumns();
+        String[] columns = getColumns();
         Crag crag = new Crag(0, "", "", (float) 0);
         //Get Crag DB pass
         Cursor cursor = db.query(
-                CragContract.CragEntry.TABLE_NAME,
+                TABLE_NAME,
                 columns,
-                CragContract.CragEntry._ID + " = ?",
+                _ID + " = ?",
                 new String[]{Long.toString(id)},
                 null, null, null, "1");
         if (cursor.moveToNext()) {
             crag = new Crag(
                     id,
-                    cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE)),
-                    cursor.getString(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE)),
-                    cursor.getFloat(cursor.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_RATING))
+                    cursor.getString(cursor.getColumnIndex(KEY_TITLE)),
+                    cursor.getString(cursor.getColumnIndex(KEY_IMAGE)),
+                    cursor.getFloat(cursor.getColumnIndex(KEY_RATING))
             );
             cursor.close();
         }
         db.close();
         //Get Nodes DB pass
-        crag.properties.put(NodeContract.NodeEntry.TABLE_NAME, Node.getAllNodesByCragId(context, id));
+        crag.properties.put(Node.TABLE_NAME, Node.getAllNodesByCragId(context, id));
         return crag;
     }
 
     public static ArrayList<Crag> getAllCrags(Context context) {
-        String[] reqColumns = CragContract.getColumns();
-        CragDbHelper dbHelper = new CragDbHelper(context);
+        String[] reqColumns = getColumns();
+        DbHelper dbHelper = new DbHelper(context);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor c = db.query(
-                CragContract.CragEntry.TABLE_NAME,
+                TABLE_NAME,
                 reqColumns,
                 null,
                 null,
                 null,
                 null,
-                CragContract.CragEntry._ID + " ASC"
+                _ID + " ASC"
         );
 
         ArrayList<Crag> cragList = new ArrayList<>();
         while (c.moveToNext()) {
             Crag crag = new Crag(
-                    c.getLong(c.getColumnIndex(CragContract.CragEntry._ID)),
-                    c.getString(c.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_TITLE)),
-                    c.getString(c.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_IMAGE)),
-                    c.getFloat(c.getColumnIndex(CragContract.CragEntry.COLUMN_NAME_RATING))
+                    c.getLong(c.getColumnIndex(_ID)),
+                    c.getString(c.getColumnIndex(KEY_TITLE)),
+                    c.getString(c.getColumnIndex(KEY_IMAGE)),
+                    c.getFloat(c.getColumnIndex(KEY_RATING))
             );
             cragList.add(crag);
         }

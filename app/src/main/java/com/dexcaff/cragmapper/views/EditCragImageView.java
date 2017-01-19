@@ -17,8 +17,6 @@ import android.view.ViewGroup;
 
 import com.dexcaff.cragmapper.EditCragImageActivity;
 import com.dexcaff.cragmapper.R;
-import com.dexcaff.cragmapper.db.CragContract;
-import com.dexcaff.cragmapper.db.NodeContract;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
 
@@ -58,7 +56,7 @@ public class EditCragImageView extends View {
         super(context);
         mContext = context;
         mCurrentCrag = currentCrag;
-        String originalImage = (String) mCurrentCrag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE);
+        String originalImage = (String) mCurrentCrag.properties.get(Crag.KEY_IMAGE);
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mBackground = new BitmapDrawable(getResources(), originalImage);
         mNodeDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.nodeoval, null);
@@ -99,9 +97,9 @@ public class EditCragImageView extends View {
     }
 
     public void addAfterTempNodeSaved(Node node) {
-        HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(NodeContract.NodeEntry.TABLE_NAME);
-        nodes.put(Long.toString((long)node.properties.get(NodeContract.NodeEntry._ID)), node);
-        mCurrentCrag.properties.put(NodeContract.NodeEntry.TABLE_NAME, nodes);
+        HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(Node.TABLE_NAME);
+        nodes.put(Long.toString((long)node.properties.get(Node._ID)), node);
+        mCurrentCrag.properties.put(Node.TABLE_NAME, nodes);
     }
 
     private RectF getScaledImageRect() {
@@ -132,7 +130,7 @@ public class EditCragImageView extends View {
         if (mTempNode != null) {
             drawNode(canvas, mTempNode, true);
         }
-        HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(NodeContract.NodeEntry.TABLE_NAME);
+        HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(Node.TABLE_NAME);
         for (Map.Entry<String, Node> entry : nodes.entrySet()){
             Node node = entry.getValue();
             drawNode(canvas, node, false);
@@ -159,7 +157,7 @@ public class EditCragImageView extends View {
         if (xcoord < 0 || ycoord < 0 || event.getX() > mContentRect.right || event.getY() > mContentRect.bottom) {
             return false;
         }
-        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID), xcoord, ycoord);
+        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(Crag._ID), xcoord, ycoord);
         invalidate();
         return true;
     }
@@ -172,7 +170,7 @@ public class EditCragImageView extends View {
         if (xcoord < 0 || ycoord < 0 || mTempX > mContentRect.right || mTempY > mContentRect.bottom) {
             return false;
         }
-        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(CragContract.CragEntry._ID), xcoord, ycoord);
+        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(Crag._ID), xcoord, ycoord);
         invalidate();
         return true;
     }
@@ -191,8 +189,8 @@ public class EditCragImageView extends View {
 
     private float[] getScaledNodeCoords(Node node) {
         float[] coords = new float[2];
-        coords[0] = (float) node.properties.get(NodeContract.NodeEntry.COLUMN_NAME_X_COORD);
-        coords[1] = (float) node.properties.get(NodeContract.NodeEntry.COLUMN_NAME_Y_COORD);
+        coords[0] = (float) node.properties.get(Node.KEY_X_COORD);
+        coords[1] = (float) node.properties.get(Node.KEY_Y_COORD);
         coords[0] *= mScale;
         coords[1] *= mScale;
         coords[0] += mContentRect.left;

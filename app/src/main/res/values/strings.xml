@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">CragMapper</string>
     <string name="action_settings">Settings</string>
-    <string name="cancel">Cancel</string>
-    <string name="done">Done</string>
+    <string name="node_cancel">Cancel</string>
+    <string name="save_node">Save Node</string>
+    <string name="save_crag">Save Crag Basics</string>
     <string name="crag_image">Crag Image</string>
     <string name="route_image">Route Image</string>
     <string name="route_name">Route Name</string>

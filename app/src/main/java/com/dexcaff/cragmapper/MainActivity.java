@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.dexcaff.cragmapper.adapters.CragsAdapter;
-import com.dexcaff.cragmapper.db.CragDbHelper;
+import com.dexcaff.cragmapper.db.DbHelper;
 import com.dexcaff.cragmapper.models.Crag;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private CragsAdapter mAdapter;
     private ListView mCragListView;
-    private CragDbHelper mDbHelper;
+    private DbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,11 +1,13 @@
 package com.dexcaff.cragmapper;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +19,6 @@ import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.models.Crag;
 
 import java.io.File;
@@ -31,6 +32,7 @@ public class BuildCragActivity extends AppCompatActivity {
     private String mCurrentPhotoPath;
     private String mTempPhotoPath;
     private long mCragId;
+    private static final int ICON_SIZE = 96;
     private static final int CAMERA_CAPTURE = 1;
     private static final String TAG = "BuildCragActivity";
 
@@ -50,18 +52,28 @@ public class BuildCragActivity extends AppCompatActivity {
                 .getSystemService(LAYOUT_INFLATER_SERVICE);
         final View customActionBarView = inflater.inflate(
                 R.layout.entity_save_toolbar, (ViewGroup) findViewById(R.id.content_main));
-        customActionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finish();
-                    }
-                });
+        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
+        Drawable closeIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_close_white_48dp, null);
+        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
+        closeIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
+        TextView doneText = (TextView) customActionBarView.findViewById(R.id.actionbar_done_text);
+        TextView closeText = (TextView) customActionBarView.findViewById(R.id.actionbar_cancel_text);
+        doneText.setText(R.string.save_crag);
+        closeText.setText(R.string.node_cancel);
+        doneText.setCompoundDrawables(doneIcon, null, null, null);
+        closeText.setCompoundDrawables(closeIcon, null, null, null);
         customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         saveCragClick();
+                    }
+                });
+        customActionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
                     }
                 });
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -155,7 +167,9 @@ public class BuildCragActivity extends AppCompatActivity {
 
             //Go to picture edit
             Intent intent = new Intent(this, EditCragImageActivity.class);
-            intent.putExtra(Crag.EXTRA_TAG, mCragId);
+            //todo Couldn't reduce this into the putExtra() for some reason - could worth looking at some times
+            long cragId = (long) crag.properties.get(Crag._ID);
+            intent.putExtra(Crag.EXTRA_TAG, cragId);
             startActivity(intent);
         } catch (Exception ex) {
             Log.e(TAG, "Save crag click failed", ex);
@@ -168,9 +182,9 @@ public class BuildCragActivity extends AppCompatActivity {
         TextView cragTitle = (TextView) findViewById(R.id.crag_edit_title);
         RatingBar cragRating = (RatingBar) findViewById(R.id.crag_edit_rating);
 
-        mCurrentPhotoPath = (String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE);
+        mCurrentPhotoPath = (String) crag.properties.get(Crag.KEY_IMAGE);
         mCragImageButton.setImageURI(Uri.parse(mCurrentPhotoPath));
-        cragTitle.setText((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_TITLE));
-        cragRating.setRating((float) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_RATING));
+        cragTitle.setText((String) crag.properties.get(Crag.KEY_TITLE));
+        cragRating.setRating((float) crag.properties.get(Crag.KEY_RATING));
     }
 }

@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.dexcaff.cragmapper.BuildCragActivity;
 import com.dexcaff.cragmapper.R;
-import com.dexcaff.cragmapper.db.CragContract;
 import com.dexcaff.cragmapper.models.Crag;
 
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final Crag crag = getItem(position);
-        final long cragId = (long) crag.properties.get(CragContract.CragEntry._ID);
+        final long cragId = (long) crag.properties.get(Crag._ID);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext)
@@ -66,8 +65,8 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
                     public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                         try {
                             Crag crag = Crag.getCragById(mContext, cragId);
-                            if ((float) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_RATING) != rating) {
-                                crag.properties.put(CragContract.CragEntry.COLUMN_NAME_RATING, rating);
+                            if ((float) crag.properties.get(Crag.KEY_RATING) != rating) {
+                                crag.properties.put(Crag.KEY_RATING, rating);
                                 crag.addCrag(mContext);
                                 ratingBar.setRating(rating);
                             }
@@ -77,9 +76,9 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
                     }
                 }
         );
-        ratingBar.setRating((float) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_RATING));
-        cragTitle.setText((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_TITLE));
-        cragImage.setImageURI(Uri.parse((String) crag.properties.get(CragContract.CragEntry.COLUMN_NAME_IMAGE)));
+        ratingBar.setRating((float) crag.properties.get(Crag.KEY_RATING));
+        cragTitle.setText((String) crag.properties.get(Crag.KEY_TITLE));
+        cragImage.setImageURI(Uri.parse((String) crag.properties.get(Crag.KEY_IMAGE)));
 
         return convertView;
     }

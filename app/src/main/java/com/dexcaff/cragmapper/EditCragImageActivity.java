@@ -4,17 +4,19 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.dexcaff.cragmapper.db.CragContract;
-import com.dexcaff.cragmapper.views.EditCragImageView;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
+import com.dexcaff.cragmapper.views.EditCragImageView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -22,6 +24,7 @@ import com.dexcaff.cragmapper.models.Node;
  */
 public class EditCragImageActivity extends AppCompatActivity {
     private final static String TAG = "EditCragImageActivity";
+    private final static int ICON_SIZE = 96;
     private EditCragImageView mContentView;
     private android.support.v7.app.ActionBar mActionBar;
     private int mActionBarOptions;
@@ -38,7 +41,7 @@ public class EditCragImageActivity extends AppCompatActivity {
         mActionBarOptions = mActionBar.getDisplayOptions();
         if (mActionBar != null) {
             mActionBar.setDisplayHomeAsUpEnabled(true);
-            String actionBarTitle = getString(R.string.title_activity_edit_crag_image) + " " + currentCrag.properties.get(CragContract.CragEntry.COLUMN_NAME_TITLE);
+            String actionBarTitle = getString(R.string.title_activity_edit_crag_image) + " " + currentCrag.properties.get(Crag.KEY_TITLE);
             mActionBar.setTitle(actionBarTitle);
         }
 
@@ -69,6 +72,15 @@ public class EditCragImageActivity extends AppCompatActivity {
             }
         });
         mAnim.start();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mActionBarActive) {
+            hideAddCragActionBar();
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -105,6 +117,16 @@ public class EditCragImageActivity extends AppCompatActivity {
     public void showAddCragActionBar() {
         mActionBar.setCustomView(R.layout.entity_save_toolbar);
         View actionBarView = mActionBar.getCustomView();
+        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
+        Drawable closeIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_close_white_48dp, null);
+        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
+        closeIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
+        TextView cancelText = (TextView) actionBarView.findViewById(R.id.actionbar_cancel_text);
+        TextView doneText = (TextView) actionBarView.findViewById(R.id.actionbar_done_text);
+        doneText.setText(R.string.save_node);
+        cancelText.setText(R.string.node_cancel);
+        doneText.setCompoundDrawables(doneIcon, null, null, null);
+        cancelText.setCompoundDrawables(closeIcon, null, null, null);
         actionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
