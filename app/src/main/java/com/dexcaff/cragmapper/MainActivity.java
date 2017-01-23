@@ -1,5 +1,6 @@
 package com.dexcaff.cragmapper;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private Context mContext;
     private CragsAdapter mAdapter;
     private ListView mCragListView;
     private DbHelper mDbHelper;
@@ -29,15 +31,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mContext = this;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add_crag);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openCragBuilderActivity();
+                Intent intent = new Intent(mContext, BuildCragActivity.class);
+                startActivity(intent);
             }
         });
 
+        generateCragsList();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         generateCragsList();
     }
 
@@ -91,11 +101,5 @@ public class MainActivity extends AppCompatActivity {
             mAdapter.addAll(cragList);
             mAdapter.notifyDataSetChanged();
         }
-    }
-
-    private void openCragBuilderActivity()
-    {
-        Intent intent = new Intent(this, BuildCragActivity.class);
-        startActivity(intent);
     }
 }

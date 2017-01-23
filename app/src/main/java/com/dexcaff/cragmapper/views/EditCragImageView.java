@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 
 import com.dexcaff.cragmapper.EditCragImageActivity;
 import com.dexcaff.cragmapper.R;
+import com.dexcaff.cragmapper.helpers.Image;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
 
@@ -56,9 +58,14 @@ public class EditCragImageView extends View {
         super(context);
         mContext = context;
         mCurrentCrag = currentCrag;
-        String originalImage = (String) mCurrentCrag.properties.get(Crag.KEY_IMAGE);
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        mBackground = new BitmapDrawable(getResources(), originalImage);
+
+        String originalImage = (String) mCurrentCrag.properties.get(Crag.KEY_IMAGE);
+        Point size = Image.getScreenSize(context);
+        Bitmap sampledBitmap = Image.getSampledBitmap(originalImage, size.x, size.y);
+        int backgroundHeight = (int) (sampledBitmap.getHeight() * (512.0 / sampledBitmap.getWidth()));
+        Bitmap backgroundScaled = Bitmap.createScaledBitmap(sampledBitmap, 512, backgroundHeight, true);
+        mBackground = new BitmapDrawable(getResources(), backgroundScaled);
         mNodeDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.nodeoval, null);
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
         invalidate();

@@ -11,13 +11,20 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.dexcaff.cragmapper.BuildCragActivity">
 
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/crag_edit_rating"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
     <TextView
         android:id="@+id/route_name"
+        android:layout_below="@id/crag_edit_rating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:text="@string/route_name" />
 
     <EditText
@@ -43,18 +50,9 @@
         android:id="@+id/crag_edit_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
         android:layout_below="@+id/route_image"
         android:contentDescription="@string/crag_image_button_desc"
-        app:srcCompat="@android:drawable/ic_input_add" />
-
-    <RatingBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/crag_edit_image"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/crag_edit_rating" />
+        app:srcCompat="@drawable/ic_add_white_48dp" />
 
 </RelativeLayout>

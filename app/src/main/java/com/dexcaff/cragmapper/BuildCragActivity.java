@@ -1,6 +1,8 @@
 package com.dexcaff.cragmapper;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.dexcaff.cragmapper.helpers.Image;
 import com.dexcaff.cragmapper.models.Crag;
 
 import java.io.File;
@@ -31,6 +34,7 @@ public class BuildCragActivity extends AppCompatActivity {
     private ImageButton mCragImageButton;
     private String mCurrentPhotoPath;
     private String mTempPhotoPath;
+    private Uri mTempPhotoUri;
     private long mCragId;
     private static final int ICON_SIZE = 96;
     private static final int CAMERA_CAPTURE = 1;
@@ -104,16 +108,25 @@ public class BuildCragActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                deleteTempImage();
                 finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        deleteTempImage();
+        super.onBackPressed();
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_CAPTURE && resultCode == RESULT_OK) {
-            File file = new File(mTempPhotoPath);
-            mCragImageButton.setImageURI(Uri.fromFile(file));
+            Matrix mtx = Image.getPhotoRotateMatrix(this, mTempPhotoPath);
+            Bitmap tempPhoto = Image.getSampledBitmap(mTempPhotoPath, 200, 200);
+            tempPhoto = Bitmap.createBitmap(tempPhoto, 0, 0, tempPhoto.getWidth(), tempPhoto.getHeight(), mtx, true);
+            mCragImageButton.setImageBitmap(tempPhoto);
             mCurrentPhotoPath = mTempPhotoPath;
         }
     }
@@ -125,14 +138,14 @@ public class BuildCragActivity extends AppCompatActivity {
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                Log.d(TAG, "Image file creating error", ex);
+                Log.e(TAG, "Image file creating error", ex);
             }
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(
+                mTempPhotoUri = FileProvider.getUriForFile(
                         this,
                         "com.dexcaff.cragmapper.fileprovider",
                         photoFile);
-                cragImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                cragImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, mTempPhotoUri);
                 startActivityForResult(cragImageIntent, CAMERA_CAPTURE);
             }
         }
@@ -183,8 +196,13 @@ public class BuildCragActivity extends AppCompatActivity {
         RatingBar cragRating = (RatingBar) findViewById(R.id.crag_edit_rating);
 
         mCurrentPhotoPath = (String) crag.properties.get(Crag.KEY_IMAGE);
-        mCragImageButton.setImageURI(Uri.parse(mCurrentPhotoPath));
+        mCragImageButton.setImageBitmap(Image.getSampledBitmap(mCurrentPhotoPath, 400, 400));
         cragTitle.setText((String) crag.properties.get(Crag.KEY_TITLE));
         cragRating.setRating((float) crag.properties.get(Crag.KEY_RATING));
+    }
+
+    private boolean deleteTempImage() {
+        File file = new File(mCurrentPhotoPath);
+        return file.delete();
     }
 }

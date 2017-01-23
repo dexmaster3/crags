@@ -2,7 +2,6 @@ package com.dexcaff.cragmapper.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 
 import com.dexcaff.cragmapper.BuildCragActivity;
 import com.dexcaff.cragmapper.R;
+import com.dexcaff.cragmapper.helpers.Image;
 import com.dexcaff.cragmapper.models.Crag;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
         );
         ratingBar.setRating((float) crag.properties.get(Crag.KEY_RATING));
         cragTitle.setText((String) crag.properties.get(Crag.KEY_TITLE));
-        cragImage.setImageURI(Uri.parse((String) crag.properties.get(Crag.KEY_IMAGE)));
+        cragImage.setImageBitmap(Image.getSampledBitmap((String) crag.properties.get(Crag.KEY_IMAGE), 200, 200));
 
         return convertView;
     }
