@@ -27,6 +27,12 @@ import static android.graphics.BitmapFactory.decodeFile;
 public class Image {
     public static final String TAG = "dexcaff.helpers.Image";
 
+    public static Bitmap getSampledRotatedBitmap(Context context, String filename, int reqWidth, int reqHeight) {
+        Matrix mtx = Image.getPhotoRotateMatrix(context, filename);
+        Bitmap tempPhoto = Image.getSampledBitmap(filename, reqWidth, reqHeight);
+        return Bitmap.createBitmap(tempPhoto, 0, 0, tempPhoto.getWidth(), tempPhoto.getHeight(), mtx, true);
+    }
+
     public static Bitmap getSampledBitmap(String filename, int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();

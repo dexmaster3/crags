@@ -1,8 +1,6 @@
 package com.dexcaff.cragmapper;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -123,10 +121,7 @@ public class BuildCragActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_CAPTURE && resultCode == RESULT_OK) {
-            Matrix mtx = Image.getPhotoRotateMatrix(this, mTempPhotoPath);
-            Bitmap tempPhoto = Image.getSampledBitmap(mTempPhotoPath, 200, 200);
-            tempPhoto = Bitmap.createBitmap(tempPhoto, 0, 0, tempPhoto.getWidth(), tempPhoto.getHeight(), mtx, true);
-            mCragImageButton.setImageBitmap(tempPhoto);
+            mCragImageButton.setImageBitmap(Image.getSampledRotatedBitmap(this, mTempPhotoPath, 200, 200));
             mCurrentPhotoPath = mTempPhotoPath;
         }
     }
@@ -196,7 +191,7 @@ public class BuildCragActivity extends AppCompatActivity {
         RatingBar cragRating = (RatingBar) findViewById(R.id.crag_edit_rating);
 
         mCurrentPhotoPath = (String) crag.properties.get(Crag.KEY_IMAGE);
-        mCragImageButton.setImageBitmap(Image.getSampledBitmap(mCurrentPhotoPath, 400, 400));
+        mCragImageButton.setImageBitmap(Image.getSampledRotatedBitmap(this, mCurrentPhotoPath, 300, 300));
         cragTitle.setText((String) crag.properties.get(Crag.KEY_TITLE));
         cragRating.setRating((float) crag.properties.get(Crag.KEY_RATING));
     }
