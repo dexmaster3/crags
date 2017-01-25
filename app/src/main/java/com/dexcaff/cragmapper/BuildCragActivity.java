@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.dexcaff.cragmapper.helpers.Validation;
 import com.dexcaff.cragmapper.helpers.Image;
 import com.dexcaff.cragmapper.models.Crag;
 
@@ -162,6 +163,9 @@ public class BuildCragActivity extends AppCompatActivity {
     private void saveCragClick() {
         EditText cragTitleView = (EditText) findViewById(R.id.crag_edit_title);
         RatingBar cragRatingBar = (RatingBar) findViewById(R.id.crag_edit_rating);
+        if (!Validation.validateItems(new View[] {cragRatingBar, cragTitleView})) {
+            return;
+        }
 
         //ToDo add validation
         try {
@@ -197,6 +201,9 @@ public class BuildCragActivity extends AppCompatActivity {
     }
 
     private boolean deleteTempImage() {
+        if (mCragId > -1) {
+            return true;
+        }
         File file = new File(mCurrentPhotoPath);
         return file.delete();
     }

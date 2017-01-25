@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.dexcaff.cragmapper.R;
+
 import java.io.IOException;
 
 import static android.graphics.BitmapFactory.decodeFile;
@@ -30,6 +32,9 @@ public class Image {
     public static Bitmap getSampledRotatedBitmap(Context context, String filename, int reqWidth, int reqHeight) {
         Matrix mtx = Image.getPhotoRotateMatrix(context, filename);
         Bitmap tempPhoto = Image.getSampledBitmap(filename, reqWidth, reqHeight);
+        if (tempPhoto == null) {
+            return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_broken_image_black_48dp);
+        }
         return Bitmap.createBitmap(tempPhoto, 0, 0, tempPhoto.getWidth(), tempPhoto.getHeight(), mtx, true);
     }
 
