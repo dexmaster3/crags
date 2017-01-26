@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
+import com.dexcaff.cragmapper.MainActivity;
 import com.dexcaff.cragmapper.R;
 
 import java.lang.ref.WeakReference;
@@ -29,11 +30,14 @@ public class ListImage {
         mPlaceholderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_close_black_48dp);
     }
 
-    public void loadBitmap(String imageFile, ImageView ImageView) {
-        if (cancelPotentialWork(imageFile, ImageView)) {
-            final MainListWorker task = new MainListWorker(mContext, ImageView);
+    public void loadBitmap(String imageFile, ImageView imageView) {
+        final Bitmap bitmap = ((MainActivity) mContext).getBitmapFromMemCache(imageFile);
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+        } else if (cancelPotentialWork(imageFile, imageView)) {
+            final MainListWorker task = new MainListWorker(mContext, imageView);
             final AsyncDrawable asyncDrawable = new AsyncDrawable(mContext.getResources(), mPlaceholderBitmap, task);
-            ImageView.setImageDrawable(asyncDrawable);
+            imageView.setImageDrawable(asyncDrawable);
             task.execute(imageFile);
         }
     }
@@ -56,9 +60,9 @@ public class ListImage {
         return true;
     }
 
-    private static MainListWorker getMainListWorker(ImageView ImageView) {
-        if (ImageView != null) {
-            final Drawable drawable = ImageView.getDrawable();
+    private static MainListWorker getMainListWorker(ImageView imageView) {
+        if (imageView != null) {
+            final Drawable drawable = imageView.getDrawable();
             if (drawable instanceof AsyncDrawable) {
                 final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
                 return asyncDrawable.getMainListWorker();
@@ -79,8 +83,9 @@ public class ListImage {
 
         @Override
         protected Bitmap doInBackground(String... params) {
-            data = params[0];
-            return Image.getSampledRotatedBitmap(mContext, data, 100, 100);
+            final Bitmap bitmap = Image.getSampledRotatedBitmap(mContext, params[0], 100, 100);
+            ((MainActivity) mContext).addBitmapToMemoryCache(String.valueOf(params[0]), bitmap);
+            return bitmap;
         }
 
         @Override

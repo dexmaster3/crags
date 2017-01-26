@@ -3,8 +3,10 @@ package com.dexcaff.cragmapper;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.util.LruCache;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,12 +26,15 @@ public class MainActivity extends AppCompatActivity {
     private Context mContext;
     private CragsAdapter mAdapter;
     private ListView mCragListView;
+    private LruCache mMemoryCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
+
+        startMemCache();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add_crag);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -99,5 +104,32 @@ public class MainActivity extends AppCompatActivity {
             mAdapter.addAll(cragList);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void startMemCache() {
+        //store in KB (must be int)
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        final int cacheSize = maxMemory / 8;
+
+        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+    }
+
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            mMemoryCache.put(key, bitmap);
+        }
+    }
+
+    public Bitmap getBitmapFromMemCache(String key) {
+        return (Bitmap) mMemoryCache.get(key);
     }
 }
