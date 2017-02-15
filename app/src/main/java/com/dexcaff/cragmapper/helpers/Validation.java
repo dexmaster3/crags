@@ -37,9 +37,9 @@ public class Validation {
         for (View view : views) {
             if (view instanceof TextView) {
                 if (((TextView) view).getText().toString().isEmpty()) {
+                    getBackgroundAnimSet(view, "backgroundColor").start();
                     return false;
                 }
-                getBackgroundAnimSet(view, "backgroundColor").start();
             }
         }
         return true;

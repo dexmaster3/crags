@@ -17,8 +17,6 @@ import com.dexcaff.cragmapper.R;
 
 import java.io.IOException;
 
-import static android.graphics.BitmapFactory.decodeFile;
-
 /**
  * @author Dexter <code@dexcaff.com>
  * @version 2017.01.21
@@ -27,7 +25,7 @@ import static android.graphics.BitmapFactory.decodeFile;
  */
 
 public class Image {
-    public static final String TAG = "dexcaff.helpers.Image";
+    private static final String TAG = "dexcaff.helpers.Image";
 
     public static Bitmap getSampledRotatedBitmap(Context context, String filename, int reqWidth, int reqHeight) {
         Matrix mtx = Image.getPhotoRotateMatrix(context, filename);
@@ -35,7 +33,8 @@ public class Image {
         if (tempPhoto == null) {
             return BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_broken_image_black_48dp);
         }
-        return Bitmap.createBitmap(tempPhoto, 0, 0, tempPhoto.getWidth(), tempPhoto.getHeight(), mtx, true);
+        tempPhoto = Bitmap.createBitmap(tempPhoto, 0, 0, tempPhoto.getWidth(), tempPhoto.getHeight(), mtx, true);
+        return tempPhoto;
     }
 
     public static Bitmap getSampledBitmap(String filename, int reqWidth, int reqHeight) {
@@ -49,7 +48,7 @@ public class Image {
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
-        return decodeFile(filename, options);
+        return BitmapFactory.decodeFile(filename, options);
     }
 
     public static Matrix getPhotoRotateMatrix(Context context, String photoPath) {
@@ -79,7 +78,7 @@ public class Image {
         return size;
     }
 
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;

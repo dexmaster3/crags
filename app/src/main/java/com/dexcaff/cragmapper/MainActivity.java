@@ -21,6 +21,7 @@ import com.dexcaff.cragmapper.models.Crag;
 
 import java.util.ArrayList;
 
+//todo at some point we want a image grid view as a main view - all image tiles to select the route initially
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private Context mContext;

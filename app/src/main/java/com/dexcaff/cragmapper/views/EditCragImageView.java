@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -44,6 +45,7 @@ public class EditCragImageView extends View {
 
     private Rect mContentRect = new Rect();
     private BitmapDrawable mBackground;
+    private Matrix mBackgroundMtx;
     private Drawable mNodeDrawable;
     private RectF mNodeRectF = new RectF();
     private Rect mNodeRect = new Rect();
@@ -62,10 +64,11 @@ public class EditCragImageView extends View {
 
         String originalImage = (String) mCurrentCrag.properties.get(Crag.KEY_IMAGE);
         Point size = Image.getScreenSize(context);
-        Bitmap sampledBitmap = Image.getSampledRotatedBitmap(mContext, originalImage, size.x, size.y);
-        int backgroundHeight = (int) (sampledBitmap.getHeight() * (512.0 / sampledBitmap.getWidth()));
-        Bitmap backgroundScaled = Bitmap.createScaledBitmap(sampledBitmap, 512, backgroundHeight, true);
-        mBackground = new BitmapDrawable(getResources(), backgroundScaled);
+        //todo size mem issues
+        mBackgroundMtx = Image.getPhotoRotateMatrix(context, originalImage);
+        mBackgroundMtx.setTranslate(0, 0);
+        Bitmap sampledBitmap = Image.getSampledRotatedBitmap(mContext, originalImage, size.x/2, size.y/2);
+        mBackground = new BitmapDrawable(getResources(), sampledBitmap);
         mNodeDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.nodeoval, null);
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
         invalidate();
@@ -74,6 +77,7 @@ public class EditCragImageView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+//        canvas.drawBitmap(mBackground, mBackgroundMtx, null);
         mBackground.setBounds(mContentRect);
         mBackground.draw(canvas);
 
@@ -96,6 +100,7 @@ public class EditCragImageView extends View {
         Rect imageRect = new Rect();
         getScaledImageRect().round(imageRect);
         mContentRect.set(imageRect);
+        mBackgroundMtx.setTranslate(imageRect.left, imageRect.top);
     }
 
     public void setNodeAlpha(int value) {

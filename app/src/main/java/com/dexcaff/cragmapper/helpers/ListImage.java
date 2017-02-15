@@ -1,5 +1,6 @@
 package com.dexcaff.cragmapper.helpers;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -7,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import com.dexcaff.cragmapper.MainActivity;
@@ -27,7 +29,7 @@ public class ListImage {
 
     public ListImage(Context context) {
         mContext = context;
-        mPlaceholderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_close_black_48dp);
+        mPlaceholderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.spinner_48_inner_holo);
     }
 
     public void loadBitmap(String imageFile, ImageView imageView) {
@@ -72,13 +74,28 @@ public class ListImage {
     }
 
     public class MainListWorker extends AsyncTask<String, Void, Bitmap> {
-        private final WeakReference<ImageView> ImageViewReference;
+        private final WeakReference<ImageView> mImageViewReference;
         private Context mContext;
+        private ObjectAnimator mAnim;
         private String data = "";
 
-        public MainListWorker(Context context, ImageView ImageView) {
+        public MainListWorker(Context context, ImageView imageView) {
             mContext = context;
-            ImageViewReference = new WeakReference<>(ImageView);
+            mImageViewReference = new WeakReference<>(imageView);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (mImageViewReference != null) {
+                final ImageView imageView = mImageViewReference.get();
+                final MainListWorker mainListWorker = ListImage.getMainListWorker(imageView);
+                if (this == mainListWorker && imageView != null) {
+                    mAnim = ObjectAnimator.ofFloat(imageView, "rotation", 1f, 360f);
+                    mAnim.setDuration(1000);
+                    mAnim.setRepeatCount(Animation.INFINITE);
+                    mAnim.start();
+                }
+            }
         }
 
         @Override
@@ -90,16 +107,23 @@ public class ListImage {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
+            mAnim.end();
             if (isCancelled()) {
                 bitmap = null;
             }
-            if (ImageViewReference != null && bitmap != null) {
-                final ImageView ImageView = ImageViewReference.get();
-                final MainListWorker mainListWorker = ListImage.getMainListWorker(ImageView);
-                if (this == mainListWorker && ImageView != null) {
-                    ImageView.setImageBitmap(bitmap);
+            if (mImageViewReference != null && bitmap != null) {
+                final ImageView imageView = mImageViewReference.get();
+                final MainListWorker mainListWorker = ListImage.getMainListWorker(imageView);
+                if (this == mainListWorker && imageView != null) {
+                    imageView.clearAnimation();
+                    imageView.setImageBitmap(bitmap);
                 }
             }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAnim.end();
         }
     }
 
