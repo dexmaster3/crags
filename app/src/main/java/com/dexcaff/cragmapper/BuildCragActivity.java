@@ -31,7 +31,6 @@ import java.util.Locale;
 public class BuildCragActivity extends AppCompatActivity {
     private ImageButton mCragImageButton;
     private String mCurrentPhotoPath;
-    private String mTempPhotoPath;
     private long mCragId;
     private static final int ICON_SIZE = 96;
     private static final int CAMERA_CAPTURE = 1;
@@ -105,7 +104,6 @@ public class BuildCragActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                deleteTempImage();
                 finish();
                 return true;
         }
@@ -114,14 +112,12 @@ public class BuildCragActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        deleteTempImage();
         super.onBackPressed();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_CAPTURE && resultCode == RESULT_OK) {
-            mCragImageButton.setImageBitmap(Image.getSampledRotatedBitmap(this, mTempPhotoPath, 200, 200));
-            mCurrentPhotoPath = mTempPhotoPath;
+            mCragImageButton.setImageBitmap(Image.getSampledRotatedBitmap(this, mCurrentPhotoPath, 200, 200));
         }
     }
 
@@ -151,7 +147,7 @@ public class BuildCragActivity extends AppCompatActivity {
                 ".jpg",
                 storageDir
         );
-        mTempPhotoPath = image.getAbsolutePath();
+        mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
@@ -193,16 +189,5 @@ public class BuildCragActivity extends AppCompatActivity {
         mCragImageButton.setImageBitmap(Image.getSampledRotatedBitmap(this, mCurrentPhotoPath, 300, 300));
         cragTitle.setText((String) crag.properties.get(Crag.KEY_TITLE));
         cragRating.setRating((float) crag.properties.get(Crag.KEY_RATING));
-    }
-
-    private boolean deleteTempImage() {
-        if (mCragId > -1 || mCurrentPhotoPath == null) {
-            return true;
-        }
-        if (mCurrentPhotoPath.isEmpty()) {
-            return true;
-        }
-        File file = new File(mCurrentPhotoPath);
-        return file.delete();
     }
 }
