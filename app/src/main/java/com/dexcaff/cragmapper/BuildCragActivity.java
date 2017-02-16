@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,8 +18,8 @@ import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.dexcaff.cragmapper.helpers.Validation;
 import com.dexcaff.cragmapper.helpers.Image;
+import com.dexcaff.cragmapper.helpers.Validation;
 import com.dexcaff.cragmapper.models.Crag;
 
 import java.io.File;
@@ -33,7 +32,6 @@ public class BuildCragActivity extends AppCompatActivity {
     private ImageButton mCragImageButton;
     private String mCurrentPhotoPath;
     private String mTempPhotoPath;
-    private Uri mTempPhotoUri;
     private long mCragId;
     private static final int ICON_SIZE = 96;
     private static final int CAMERA_CAPTURE = 1;
@@ -128,8 +126,8 @@ public class BuildCragActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePicture() {
-        Intent cragImageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cragImageIntent.resolveActivity(getPackageManager()) != null) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
                 photoFile = createImageFile();
@@ -137,18 +135,15 @@ public class BuildCragActivity extends AppCompatActivity {
                 Log.e(TAG, "Image file creating error", ex);
             }
             if (photoFile != null) {
-                mTempPhotoUri = FileProvider.getUriForFile(
-                        this,
-                        "com.dexcaff.cragmapper.fileprovider",
-                        photoFile);
-                cragImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, mTempPhotoUri);
-                startActivityForResult(cragImageIntent, CAMERA_CAPTURE);
+                Uri photoUri = Uri.fromFile(photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(takePictureIntent, CAMERA_CAPTURE);
             }
         }
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd__HHmmss", Locale.US).format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -201,7 +196,10 @@ public class BuildCragActivity extends AppCompatActivity {
     }
 
     private boolean deleteTempImage() {
-        if (mCragId > -1) {
+        if (mCragId > -1 || mCurrentPhotoPath == null) {
+            return true;
+        }
+        if (mCurrentPhotoPath.isEmpty()) {
             return true;
         }
         File file = new File(mCurrentPhotoPath);
