@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.dexcaff.cragmapper.helpers.Image;
 import com.dexcaff.cragmapper.helpers.Validation;
 import com.dexcaff.cragmapper.models.Crag;
+import com.dexcaff.cragmapper.models.Node;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.util.Locale;
 public class BuildCragActivity extends AppCompatActivity {
     private ImageButton mCragImageButton;
     private String mCurrentPhotoPath;
+    private String mExistingPhotoPath;
     private long mCragId;
     private static final int ICON_SIZE = 96;
     private static final int CAMERA_CAPTURE = 1;
@@ -118,6 +120,9 @@ public class BuildCragActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_CAPTURE && resultCode == RESULT_OK) {
             mCragImageButton.setImageBitmap(Image.getSampledRotatedBitmap(this, mCurrentPhotoPath, 200, 200));
+            Node.deleteAllNodesByCragId(this, mCragId);
+        } else if (resultCode == RESULT_CANCELED) {
+            mCurrentPhotoPath = mExistingPhotoPath;
         }
     }
 
@@ -186,6 +191,7 @@ public class BuildCragActivity extends AppCompatActivity {
         RatingBar cragRating = (RatingBar) findViewById(R.id.crag_edit_rating);
 
         mCurrentPhotoPath = (String) crag.properties.get(Crag.KEY_IMAGE);
+        mExistingPhotoPath = mCurrentPhotoPath;
         mCragImageButton.setImageBitmap(Image.getSampledRotatedBitmap(this, mCurrentPhotoPath, 300, 300));
         cragTitle.setText((String) crag.properties.get(Crag.KEY_TITLE));
         cragRating.setRating((float) crag.properties.get(Crag.KEY_RATING));

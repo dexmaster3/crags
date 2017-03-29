@@ -48,6 +48,7 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
         ImageView cragImage = (ImageView) convertView.findViewById(R.id.crag_list_image);
         Button editButton = (Button) convertView.findViewById(R.id.crag_list_edit_button);
         RatingBar ratingBar = (RatingBar) convertView.findViewById(R.id.crag_list_rating);
+        Button deleteButton = (Button) convertView.findViewById(R.id.crag_list_delete_button);
 
         editButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -73,6 +74,16 @@ public class CragsAdapter extends ArrayAdapter<Crag> {
                         } catch (Exception ex) {
                             Log.e(TAG, "Rating bar change save failed", ex);
                         }
+                    }
+                }
+        );
+        deleteButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Crag.deleteCragById(mContext, cragId);
+                        remove(crag);
+                        notifyDataSetChanged();
                     }
                 }
         );

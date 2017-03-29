@@ -167,4 +167,14 @@ public class Node implements BaseColumns {
         db.close();
         return nodeList;
     }
+
+    public static int deleteAllNodesByCragId(Context context, long cragId) {
+        DbHelper dbHelper = new DbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(
+                TABLE_NAME,
+                KEY_CRAG_ID + "=" + cragId,
+                null
+        );
+    }
 }
