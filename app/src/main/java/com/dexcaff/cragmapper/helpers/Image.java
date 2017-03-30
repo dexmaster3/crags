@@ -52,6 +52,13 @@ public class Image {
     }
 
     public static Matrix getPhotoRotateMatrix(Context context, String photoPath) {
+        int orientation = getPhotoRotateDegree(context, photoPath);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(orientation);
+        return matrix;
+    }
+
+    private static int getPhotoRotateDegree(Context context, String photoPath) {
         Uri imageUri = Uri.parse(photoPath);
         String[] orientationColumn = {MediaStore.Images.Media.DATA};
         Cursor cur = context.getContentResolver().query(imageUri, orientationColumn, null, null, null);
@@ -65,9 +72,7 @@ public class Image {
         if (orientation == -1) {
             orientation = getExifOrientation(imageUri.toString());
         }
-        Matrix matrix = new Matrix();
-        matrix.postRotate(orientation);
-        return matrix;
+        return orientation;
     }
 
     public static Point getScreenSize(Context context) {
@@ -98,6 +103,17 @@ public class Image {
         }
 
         return inSampleSize;
+    }
+
+    public static float[] getOriginalImageSize(Context context, String filename) {
+        int rotateDegree = getPhotoRotateDegree(context, filename);
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filename, options);
+        if (rotateDegree == 0 || rotateDegree == 180) {
+            return new float[]{options.outWidth, options.outHeight};
+        }
+        return new float[]{options.outHeight, options.outWidth};
     }
 
     private static int getExifOrientation(String filepath) {

@@ -77,7 +77,7 @@ public class EditCragImageActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (mActionBarActive) {
-            hideAddCragActionBar();
+            cancelButton();
             return;
         }
         super.onBackPressed();
@@ -87,18 +87,13 @@ public class EditCragImageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            if (mActionBarActive) {
-                cancelButton();
-                return true;
-            } else {
-                onBackPressed();
-                return true;
-            }
+            onBackPressed();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void saveCragButton() {
+    private void saveNodeButton() {
         try {
             Node node = mContentView.getTempNode();
             mContentView.addAfterTempNodeSaved(node.addNode(this));
@@ -138,7 +133,7 @@ public class EditCragImageActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        saveCragButton();
+                        saveNodeButton();
                     }
                 });
 

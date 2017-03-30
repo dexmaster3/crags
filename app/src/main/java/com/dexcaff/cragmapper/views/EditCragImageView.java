@@ -29,7 +29,7 @@ import java.util.Map;
  * @author Dexter <code@dexcaff.com>
  * @version 2017.01.13
  *          Project: CragMapper
- *          Package: com.dexcaff.cragmapper.libs
+ *          Package: com.dexcaff.cragmapper.views
  */
 
 public class EditCragImageView extends View {
@@ -37,10 +37,11 @@ public class EditCragImageView extends View {
     private Crag mCurrentCrag;
     private Node mTempNode;
     private Context mContext;
-    private float mScale, mStartW, mStartH;
+    private float mScale, mOrigScale, mStartW, mStartH;
 
     private GestureDetectorCompat mGestureDetector;
     private float mTempX, mTempY;
+    private float[] mOriginalSize;
 
     private Rect mContentRect = new Rect();
     private BitmapDrawable mBackground;
@@ -61,6 +62,7 @@ public class EditCragImageView extends View {
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         String originalImage = (String) mCurrentCrag.properties.get(Crag.KEY_IMAGE);
+        mOriginalSize = Image.getOriginalImageSize(context, originalImage);
         Point size = Image.getScreenSize(context);
         Bitmap sampledBitmap = Image.getSampledRotatedBitmap(mContext, originalImage, size.x/2, size.y/2);
         mBackground = new BitmapDrawable(getResources(), sampledBitmap);
@@ -76,10 +78,6 @@ public class EditCragImageView extends View {
         mBackground.draw(canvas);
 
         drawNodes(canvas);
-
-        mNodeDrawable.setBounds(10, 50, canvas.getWidth() / 4, canvas.getHeight() / 8);
-        mNodeDrawable.setAlpha(mNodeAlpha);
-        mNodeDrawable.draw(canvas);
     }
 
     @Override
@@ -117,13 +115,16 @@ public class EditCragImageView extends View {
         float viewH = getHeight() - (getPaddingTop() + getPaddingBottom());
         float viewW = getWidth() - (getPaddingLeft() + getPaddingRight());
         float viewR = viewW / viewH;
+        //todo scale with original size on save?
         if (viewR > ratio) {
             //Viewport is wider -> scale image by max height
+            mOrigScale = mOriginalSize[1] / viewH;
             mScale = viewH / bmpH;
             viewW = mScale * bmpW;
             mStartW = (getWidth() - viewW) / 2;
         } else {
             //Viewport is taller
+            mOrigScale = mOriginalSize[0] / viewW;
             mScale = viewW / bmpW;
             viewH = mScale * bmpH;
             mStartH = (getHeight() - viewH) / 2;
@@ -157,8 +158,8 @@ public class EditCragImageView extends View {
     private boolean drawTempNode(MotionEvent event) {
         mTempX = event.getX();
         mTempY = event.getY();
-        float xcoord = (mTempX - mStartW) / mScale;
-        float ycoord = (mTempY - mStartH) / mScale;
+        float xcoord = (mTempX - mStartW) * mOrigScale;
+        float ycoord = (mTempY - mStartH) * mOrigScale;
         if (xcoord < 0 || ycoord < 0 || event.getX() > mContentRect.right || event.getY() > mContentRect.bottom) {
             return false;
         }
@@ -170,8 +171,8 @@ public class EditCragImageView extends View {
     private boolean drawTempNode(float distanceX, float distanceY) {
         mTempX -= distanceX;
         mTempY -= distanceY;
-        float xcoord = (mTempX - mStartW) / mScale;
-        float ycoord = (mTempY - mStartH) / mScale;
+        float xcoord = (mTempX - mStartW) * mOrigScale;
+        float ycoord = (mTempY - mStartH) * mOrigScale;
         if (xcoord < 0 || ycoord < 0 || mTempX > mContentRect.right || mTempY > mContentRect.bottom) {
             return false;
         }
@@ -196,8 +197,8 @@ public class EditCragImageView extends View {
         float[] coords = new float[2];
         coords[0] = (float) node.properties.get(Node.KEY_X_COORD);
         coords[1] = (float) node.properties.get(Node.KEY_Y_COORD);
-        coords[0] *= mScale;
-        coords[1] *= mScale;
+        coords[0] /= mOrigScale;
+        coords[1] /= mOrigScale;
         coords[0] += mContentRect.left;
         coords[1] += mContentRect.top;
         return coords;
