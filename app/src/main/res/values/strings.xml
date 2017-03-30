@@ -12,4 +12,6 @@
     <string name="title_activity_edit_crag_image">Add points to route </string>
     <string name="edit_crag">Edit</string>
     <string name="delete_crag">Delete</string>
+    <string name="back_save_nodes">Back</string>
+    <string name="next_save_nodes">Order Nodes</string>
 </resources>

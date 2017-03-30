@@ -53,7 +53,7 @@ public class BuildCragActivity extends AppCompatActivity {
         final LayoutInflater inflater = (LayoutInflater) getSupportActionBar().getThemedContext()
                 .getSystemService(LAYOUT_INFLATER_SERVICE);
         final View customActionBarView = inflater.inflate(
-                R.layout.entity_save_toolbar, (ViewGroup) findViewById(R.id.content_main));
+                R.layout.node_save_toolbar, (ViewGroup) findViewById(R.id.content_main));
         Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
         Drawable closeIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_close_white_48dp, null);
         doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);

@@ -115,7 +115,6 @@ public class EditCragImageView extends View {
         float viewH = getHeight() - (getPaddingTop() + getPaddingBottom());
         float viewW = getWidth() - (getPaddingLeft() + getPaddingRight());
         float viewR = viewW / viewH;
-        //todo scale with original size on save?
         if (viewR > ratio) {
             //Viewport is wider -> scale image by max height
             mOrigScale = mOriginalSize[1] / viewH;
@@ -220,7 +219,7 @@ public class EditCragImageView extends View {
         @Override
         public boolean onDown(MotionEvent e) {
             if (drawTempNode(e)) {
-                ((EditCragImageActivity) mContext).showAddCragActionBar();
+                ((EditCragImageActivity) mContext).showAddNodeActionBar();
             }
             return true;
         }

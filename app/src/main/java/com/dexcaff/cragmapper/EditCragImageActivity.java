@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
@@ -18,6 +19,8 @@ import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
 import com.dexcaff.cragmapper.views.EditCragImageView;
 
+import java.util.HashMap;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -28,6 +31,8 @@ public class EditCragImageActivity extends AppCompatActivity {
     private EditCragImageView mContentView;
     private android.support.v7.app.ActionBar mActionBar;
     private int mActionBarOptions;
+    private long mCragId;
+    private Crag mCurrentCrag;
     private boolean mActionBarActive = false;
 
     private boolean mIsEndingAnimator;
@@ -36,17 +41,19 @@ public class EditCragImageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Crag currentCrag = Crag.getCragById(this, getIntent().getLongExtra(Crag.EXTRA_TAG, -1));
+        mCragId = getIntent().getLongExtra(Crag.EXTRA_TAG, -1);
+        mCurrentCrag = Crag.getCragById(this, mCragId);
         mActionBar = getSupportActionBar();
         mActionBarOptions = mActionBar.getDisplayOptions();
         if (mActionBar != null) {
             mActionBar.setDisplayHomeAsUpEnabled(true);
-            String actionBarTitle = getString(R.string.title_activity_edit_crag_image) + " " + currentCrag.properties.get(Crag.KEY_TITLE);
+            String actionBarTitle = getString(R.string.title_activity_edit_crag_image) + " " + mCurrentCrag.properties.get(Crag.KEY_TITLE);
             mActionBar.setTitle(actionBarTitle);
         }
 
-        mContentView = new EditCragImageView(this, currentCrag);
+        mContentView = new EditCragImageView(this, mCurrentCrag);
         setContentView(mContentView);
+        checkShowNextStepBar();
     }
 
     @Override
@@ -98,7 +105,7 @@ public class EditCragImageActivity extends AppCompatActivity {
             Node node = mContentView.getTempNode();
             mContentView.addAfterTempNodeSaved(node.addNode(this));
             mContentView.removeTempNode();
-            hideAddCragActionBar();
+            checkShowNextStepBar();
         } catch (Exception ex) {
             Log.e(TAG, "Save node click failed", ex);
         }
@@ -106,11 +113,54 @@ public class EditCragImageActivity extends AppCompatActivity {
 
     private void cancelButton() {
         mContentView.removeTempNode();
-        hideAddCragActionBar();
+        checkShowNextStepBar();
     }
 
-    public void showAddCragActionBar() {
-        mActionBar.setCustomView(R.layout.entity_save_toolbar);
+    private void nextStepButton() {
+        Intent intent = new Intent(this, EditNodeOrderActivity.class);
+        intent.putExtra(Crag.EXTRA_TAG, mCragId);
+        startActivity(intent);
+    }
+
+    private void checkShowNextStepBar() {
+        HashMap<String, Node> nodes = Node.getAllNodesByCragId(this, (long)mCurrentCrag.properties.get(Crag._ID));
+        if (nodes.size() >= 1) {
+            showNextStepActionBar();
+        }
+        hideAddNodeActionBar();
+    }
+
+    public void showNextStepActionBar() {
+        mActionBar.setCustomView(R.layout.goto_nodes_edit_toolbar);
+        View actionBarView = mActionBar.getCustomView();
+        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
+        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
+        TextView doneText = (TextView) actionBarView.findViewById(R.id.goto_nodes_save_text);
+        doneText.setText(R.string.next_save_nodes);
+        doneText.setCompoundDrawables(doneIcon, null, null, null);
+        actionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        nextStepButton();
+                    }
+                });
+
+        mActionBar.setDisplayOptions(
+                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,
+                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM
+                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_HOME
+                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_TITLE);
+        mActionBar.setCustomView(actionBarView,
+                new android.support.v7.app.ActionBar.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBarActive = true;
+    }
+
+    public void showAddNodeActionBar() {
+        mActionBar.setCustomView(R.layout.node_save_toolbar);
         View actionBarView = mActionBar.getCustomView();
         Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
         Drawable closeIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_close_white_48dp, null);
@@ -150,7 +200,7 @@ public class EditCragImageActivity extends AppCompatActivity {
         mActionBarActive = true;
     }
 
-    private void hideAddCragActionBar() {
+    private void hideAddNodeActionBar() {
         mActionBar.setDisplayShowCustomEnabled(false);
         mActionBar.setDisplayOptions(mActionBarOptions);
         mActionBarActive = false;
