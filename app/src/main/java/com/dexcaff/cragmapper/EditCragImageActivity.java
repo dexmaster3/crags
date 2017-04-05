@@ -126,8 +126,9 @@ public class EditCragImageActivity extends AppCompatActivity {
         HashMap<String, Node> nodes = Node.getAllNodesByCragId(this, (long)mCurrentCrag.properties.get(Crag._ID));
         if (nodes.size() >= 1) {
             showNextStepActionBar();
+        } else {
+            hideAddNodeActionBar();
         }
-        hideAddNodeActionBar();
     }
 
     public void showNextStepActionBar() {
@@ -138,7 +139,7 @@ public class EditCragImageActivity extends AppCompatActivity {
         TextView doneText = (TextView) actionBarView.findViewById(R.id.goto_nodes_save_text);
         doneText.setText(R.string.next_save_nodes);
         doneText.setCompoundDrawables(doneIcon, null, null, null);
-        actionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+        actionBarView.findViewById(R.id.goto_nodes_save).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
