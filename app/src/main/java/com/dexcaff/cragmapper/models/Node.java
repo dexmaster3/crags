@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.dexcaff.cragmapper.db.DbHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -162,6 +163,33 @@ public class Node implements BaseColumns {
                     c.getFloat(c.getColumnIndex(KEY_Y_COORD))
             );
             nodeList.put(Long.toString(nodeId), node);
+        }
+        c.close();
+        db.close();
+        return nodeList;
+    }
+
+    public static ArrayList<Node> getAllNodesListByCragId(Context context, long cragId) {
+        String[] reqColumns = getColumns();
+        DbHelper dbHelper = new DbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor c = db.query(
+                TABLE_NAME,
+                reqColumns,
+                KEY_CRAG_ID + " = ?",
+                new String[] {Long.toString(cragId)},
+                null, null, KEY_Y_COORD + " DESC");
+
+        ArrayList<Node> nodeList = new ArrayList<>();
+        while (c.moveToNext()) {
+            long nodeId = c.getLong(c.getColumnIndex(_ID));
+            Node node = new Node(
+                    nodeId,
+                    c.getLong(c.getColumnIndex(KEY_CRAG_ID)),
+                    c.getFloat(c.getColumnIndex(KEY_X_COORD)),
+                    c.getFloat(c.getColumnIndex(KEY_Y_COORD))
+            );
+            nodeList.add(node);
         }
         c.close();
         db.close();
