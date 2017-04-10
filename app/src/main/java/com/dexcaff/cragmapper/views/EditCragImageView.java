@@ -64,7 +64,7 @@ public class EditCragImageView extends View {
         String originalImage = (String) mCurrentCrag.properties.get(Crag.KEY_IMAGE);
         mOriginalSize = Image.getOriginalImageSize(context, originalImage);
         Point size = Image.getScreenSize(context);
-        Bitmap sampledBitmap = Image.getSampledRotatedBitmap(mContext, originalImage, size.x/2, size.y/2);
+        Bitmap sampledBitmap = Image.getSampledRotatedBitmap(mContext, originalImage, size.x / 2, size.y / 2);
         mBackground = new BitmapDrawable(getResources(), sampledBitmap);
         mNodeDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.nodeoval, null);
         mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
@@ -101,7 +101,7 @@ public class EditCragImageView extends View {
 
     public void addAfterTempNodeSaved(Node node) {
         HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(Node.TABLE_NAME);
-        nodes.put(Long.toString((long)node.properties.get(Node._ID)), node);
+        nodes.put(Long.toString((long) node.properties.get(Node._ID)), node);
         mCurrentCrag.properties.put(Node.TABLE_NAME, nodes);
     }
 
@@ -136,7 +136,7 @@ public class EditCragImageView extends View {
             drawNode(canvas, mTempNode, true);
         }
         HashMap<String, Node> nodes = (HashMap<String, Node>) mCurrentCrag.properties.get(Node.TABLE_NAME);
-        for (Map.Entry<String, Node> entry : nodes.entrySet()){
+        for (Map.Entry<String, Node> entry : nodes.entrySet()) {
             Node node = entry.getValue();
             drawNode(canvas, node, false);
         }
@@ -218,10 +218,29 @@ public class EditCragImageView extends View {
 
         @Override
         public boolean onDown(MotionEvent e) {
-            if (drawTempNode(e)) {
+            if (mContext instanceof EditCragImageActivity && drawTempNode(e)) {
                 ((EditCragImageActivity) mContext).showAddNodeActionBar();
             }
             return true;
         }
     };
+
+    public void highlightNode(Node node) {
+        HashMap<String, Node> nodes = Node.getAllNodesByCragId(mContext, (long)mCurrentCrag.properties.get(Crag._ID));
+        boolean removal = false;
+        String entryKey = "";
+        for (Map.Entry<String, Node> entry : nodes.entrySet()) {
+            Node currentNode = entry.getValue();
+            if (currentNode.properties.get(Node._ID) == node.properties.get(Node._ID)) {
+                removal = true;
+                mTempNode = node;
+                entryKey = entry.getKey();
+            }
+        }
+        if (removal && !entryKey.isEmpty()) {
+            nodes.remove(entryKey);
+            mCurrentCrag.properties.put(Node.TABLE_NAME, nodes);
+            invalidate();
+        }
+    }
 }

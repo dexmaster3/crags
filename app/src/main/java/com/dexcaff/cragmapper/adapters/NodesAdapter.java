@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.dexcaff.cragmapper.R;
 import com.dexcaff.cragmapper.models.Node;
+import com.dexcaff.cragmapper.views.EditCragImageView;
 import com.woxthebox.draglistview.DragItemAdapter;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class NodesAdapter extends DragItemAdapter<Node, NodesAdapter.ViewHolder>
     private int mGrabHandleId;
     private boolean mDragOnLongPress;
     private long mCurrentNodeSelection;
+    private EditCragImageView mCragImageView;
     protected NodesAdapter mAdapter = this;
 
     public NodesAdapter(ArrayList<Node> list, int layoutId, int grabHandleId, boolean dragOnLongPress) {
@@ -77,6 +79,7 @@ public class NodesAdapter extends DragItemAdapter<Node, NodesAdapter.ViewHolder>
             //ToDo alter underlying data adapter for changes?
             Node node = (Node) view.getTag();
             mCurrentNodeSelection = (long) node.properties.get(Node._ID);
+            getCragImageView().highlightNode(node);
             mAdapter.notifyDataSetChanged();
             Toast.makeText(view.getContext(), "Node " + Long.toString(mCurrentNodeSelection) + " clicked", Toast.LENGTH_SHORT).show();
         }
@@ -86,5 +89,16 @@ public class NodesAdapter extends DragItemAdapter<Node, NodesAdapter.ViewHolder>
             Toast.makeText(view.getContext(), "Item long clicked", Toast.LENGTH_SHORT).show();
             return true;
         }
+    }
+
+    public void setCragImageView(EditCragImageView cragImageView) {
+        mCragImageView = cragImageView;
+    }
+
+    public EditCragImageView getCragImageView() {
+        if (mCragImageView != null) {
+            return mCragImageView;
+        }
+        return null;
     }
 }
