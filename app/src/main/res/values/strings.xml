@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="node_cancel">Cancel</string>
     <string name="save_node">Save Node</string>
+    <string name="save_node_order">Save Ordering</string>
     <string name="save_crag">Save Crag Basics</string>
     <string name="crag_image">Crag Image</string>
     <string name="route_image">Route Image</string>
@@ -10,6 +11,7 @@
     <string name="crag_image_button_desc">Crag Image</string>
 
     <string name="title_activity_edit_crag_image">Add points to route </string>
+    <string name="title_activity_order_nodes">Order route nodes</string>
     <string name="edit_crag">Edit</string>
     <string name="delete_crag">Delete</string>
     <string name="back_save_nodes">Back</string>

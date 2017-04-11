@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class Node implements BaseColumns {
     public static final String TAG = "models/Node";
-    
+
     public static final String EXTRA_TAG = "node_id";
     public HashMap<String, Object> properties;
 
@@ -30,13 +30,15 @@ public class Node implements BaseColumns {
     public static final String KEY_CRAG_ID = "crag_id";
     public static final String KEY_X_COORD = "x_coord";
     public static final String KEY_Y_COORD = "y_coord";
+    public static final String KEY_NODE_WEIGHT = "node_weight";
 
     public static String[] getColumns() {
         return new String[]{
                 _ID,
                 KEY_CRAG_ID,
                 KEY_X_COORD,
-                KEY_Y_COORD
+                KEY_Y_COORD,
+                KEY_NODE_WEIGHT
         };
     }
 
@@ -46,15 +48,17 @@ public class Node implements BaseColumns {
                 KEY_CRAG_ID + " INTEGER," +
                 KEY_X_COORD + " REAL," +
                 KEY_Y_COORD + " REAL," +
+                KEY_NODE_WEIGHT + " INTEGER," +
                 "FOREIGN KEY(" + KEY_CRAG_ID + ") REFERENCES " + Crag.TABLE_NAME + "(" + Crag._ID + "))";
     }
 
-    public Node(long id, long crag_id, float x_coord, float y_coord) {
+    public Node(long id, long crag_id, float x_coord, float y_coord, int order) {
         this.properties = new HashMap<>();
         this.properties.put(_ID, id);
         this.properties.put(KEY_CRAG_ID, crag_id);
         this.properties.put(KEY_X_COORD, x_coord);
         this.properties.put(KEY_Y_COORD, y_coord);
+        this.properties.put(KEY_NODE_WEIGHT, order);
     }
 
     public Bundle nodeToBundle() {
@@ -63,6 +67,7 @@ public class Node implements BaseColumns {
         bundle.putLong(KEY_CRAG_ID, (long) this.properties.get(KEY_CRAG_ID));
         bundle.putFloat(KEY_X_COORD, (float) this.properties.get(KEY_X_COORD));
         bundle.putFloat(KEY_Y_COORD, (float) this.properties.get(KEY_Y_COORD));
+        bundle.putInt(KEY_NODE_WEIGHT, (int) this.properties.get(KEY_NODE_WEIGHT));
         return bundle;
     }
 
@@ -76,6 +81,7 @@ public class Node implements BaseColumns {
         values.put(KEY_CRAG_ID, node.getLong(KEY_CRAG_ID, -1));
         values.put(KEY_X_COORD, node.getFloat(KEY_X_COORD, -1));
         values.put(KEY_Y_COORD, node.getFloat(KEY_Y_COORD, -1));
+        values.put(KEY_NODE_WEIGHT, node.getInt(KEY_NODE_WEIGHT, -1));
         return values;
     }
 
@@ -132,13 +138,14 @@ public class Node implements BaseColumns {
                     id,
                     cursor.getLong(cursor.getColumnIndex(KEY_CRAG_ID)),
                     cursor.getFloat(cursor.getColumnIndex(KEY_X_COORD)),
-                    cursor.getFloat(cursor.getColumnIndex(KEY_Y_COORD))
+                    cursor.getFloat(cursor.getColumnIndex(KEY_Y_COORD)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_NODE_WEIGHT))
             );
             cursor.close();
             db.close();
             return node;
         } else {
-            return new Node(0, 0, 0, 0);
+            return new Node(0, 0, 0, 0, 0);
         }
     }
 
@@ -150,7 +157,7 @@ public class Node implements BaseColumns {
                 TABLE_NAME,
                 reqColumns,
                 KEY_CRAG_ID + " = ?",
-                new String[] {Long.toString(cragId)},
+                new String[]{Long.toString(cragId)},
                 null, null, null);
 
         HashMap<String, Node> nodeList = new HashMap<>();
@@ -160,7 +167,8 @@ public class Node implements BaseColumns {
                     nodeId,
                     c.getLong(c.getColumnIndex(KEY_CRAG_ID)),
                     c.getFloat(c.getColumnIndex(KEY_X_COORD)),
-                    c.getFloat(c.getColumnIndex(KEY_Y_COORD))
+                    c.getFloat(c.getColumnIndex(KEY_Y_COORD)),
+                    c.getInt(c.getColumnIndex(KEY_NODE_WEIGHT))
             );
             nodeList.put(Long.toString(nodeId), node);
         }
@@ -169,7 +177,31 @@ public class Node implements BaseColumns {
         return nodeList;
     }
 
+    public static boolean hasNodesWeightedValues(Context context, long cragId) {
+        boolean hasWeightSet;
+        String[] reqColumns = getColumns();
+        DbHelper dbHelper = new DbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor c = db.query(
+                TABLE_NAME,
+                reqColumns,
+                KEY_CRAG_ID + " = ? AND " + KEY_NODE_WEIGHT + " > 0",
+                new String[]{Long.toString(cragId)},
+                null,
+                null,
+                null
+        );
+        hasWeightSet = c.moveToNext();
+        c.close();
+        db.close();
+        return hasWeightSet;
+    }
+
     public static ArrayList<Node> getAllNodesListByCragId(Context context, long cragId) {
+        return getAllNodesListByCragId(context, cragId, false);
+    }
+
+    public static ArrayList<Node> getAllNodesListByCragId(Context context, long cragId, boolean orderByWeight) {
         String[] reqColumns = getColumns();
         DbHelper dbHelper = new DbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -177,8 +209,11 @@ public class Node implements BaseColumns {
                 TABLE_NAME,
                 reqColumns,
                 KEY_CRAG_ID + " = ?",
-                new String[] {Long.toString(cragId)},
-                null, null, KEY_Y_COORD + " DESC");
+                new String[]{Long.toString(cragId)},
+                null,
+                null,
+                orderByWeight ? KEY_NODE_WEIGHT + " ASC" : KEY_Y_COORD + " ASC"
+        );
 
         ArrayList<Node> nodeList = new ArrayList<>();
         while (c.moveToNext()) {
@@ -187,7 +222,8 @@ public class Node implements BaseColumns {
                     nodeId,
                     c.getLong(c.getColumnIndex(KEY_CRAG_ID)),
                     c.getFloat(c.getColumnIndex(KEY_X_COORD)),
-                    c.getFloat(c.getColumnIndex(KEY_Y_COORD))
+                    c.getFloat(c.getColumnIndex(KEY_Y_COORD)),
+                    c.getInt(c.getColumnIndex(KEY_Y_COORD))
             );
             nodeList.add(node);
         }

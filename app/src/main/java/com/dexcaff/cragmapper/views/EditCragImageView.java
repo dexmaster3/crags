@@ -162,7 +162,7 @@ public class EditCragImageView extends View {
         if (xcoord < 0 || ycoord < 0 || event.getX() > mContentRect.right || event.getY() > mContentRect.bottom) {
             return false;
         }
-        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(Crag._ID), xcoord, ycoord);
+        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(Crag._ID), xcoord, ycoord, 0);
         invalidate();
         return true;
     }
@@ -175,7 +175,7 @@ public class EditCragImageView extends View {
         if (xcoord < 0 || ycoord < 0 || mTempX > mContentRect.right || mTempY > mContentRect.bottom) {
             return false;
         }
-        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(Crag._ID), xcoord, ycoord);
+        mTempNode = new Node(-1, (long) mCurrentCrag.properties.get(Crag._ID), xcoord, ycoord, 0);
         invalidate();
         return true;
     }

@@ -35,6 +35,7 @@
         </activity>
         <activity
             android:name=".BuildCragActivity"
+            android:label="@string/save_crag"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -48,7 +49,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.dexcaff.cragmapper.BuildCragActivity" />
         </activity>
-        <activity android:name=".EditNodeOrderActivity"></activity>
+        <activity
+            android:name=".EditNodeOrderActivity"
+            android:label="@string/save_node_order"
+            android:parentActivityName=".EditCragImageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.dexcaff.cragmapper.EditCragImageActivity" />
+        </activity>
     </application>
 
 </manifest>
