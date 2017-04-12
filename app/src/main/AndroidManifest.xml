@@ -35,7 +35,7 @@
         </activity>
         <activity
             android:name=".BuildCragActivity"
-            android:label="@string/save_crag"
+            android:label="@string/title_activity_build_crag"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -51,11 +51,21 @@
         </activity>
         <activity
             android:name=".EditNodeOrderActivity"
-            android:label="@string/save_node_order"
+            android:label="@string/title_activity_edit_node_order"
             android:parentActivityName=".EditCragImageActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.dexcaff.cragmapper.EditCragImageActivity" />
+        </activity>
+        <activity
+            android:name=".CragViewActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_crag_view"
+            android:theme="@style/FullscreenTheme"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.dexcaff.cragmapper.MainActivity" />
         </activity>
     </application>
 

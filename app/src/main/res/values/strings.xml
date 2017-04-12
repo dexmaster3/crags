@@ -10,10 +10,18 @@
     <string name="route_name">Route Name</string>
     <string name="crag_image_button_desc">Crag Image</string>
 
-    <string name="title_activity_edit_crag_image">Add points to route </string>
-    <string name="title_activity_order_nodes">Order route nodes</string>
+    <string name="edit_crag_actionbar">Add points to route </string>
     <string name="edit_crag">Edit</string>
     <string name="delete_crag">Delete</string>
     <string name="back_save_nodes">Back</string>
     <string name="next_save_nodes">Order Nodes</string>
+    <string name="finish_crag">Finish</string>
+
+    <string name="title_activity_crag_view">Crag View</string>
+    <string name="title_activity_order_nodes">Order route nodes</string>
+    <string name="title_activity_edit_crag_image">EditCragImageActivity</string>
+    <string name="title_activity_edit_node_order">EditNodeOrderActivity</string>
+    <string name="title_activity_build_crag">BuildCragActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

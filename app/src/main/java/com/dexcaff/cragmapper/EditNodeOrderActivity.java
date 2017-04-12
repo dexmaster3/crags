@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
@@ -133,9 +134,8 @@ public class EditNodeOrderActivity extends AppCompatActivity {
         Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
         doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
         TextView doneText = (TextView) actionBarView.findViewById(R.id.node_order_done_text);
-        doneText.setText(R.string.next_save_nodes);
         doneText.setCompoundDrawables(doneIcon, null, null, null);
-        actionBarView.findViewById(R.id.node_order_done_text).setOnClickListener(
+        doneText.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -165,5 +165,8 @@ public class EditNodeOrderActivity extends AppCompatActivity {
                 Log.e(TAG, "Update node failed", ex);
             }
         }
+        Intent intent = new Intent(this, CragViewActivity.class);
+        intent.putExtra(Crag.TAG, mCragId);
+        startActivity(intent);
     }
 }

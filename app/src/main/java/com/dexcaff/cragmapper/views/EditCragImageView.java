@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dexcaff.cragmapper.CragViewActivity;
 import com.dexcaff.cragmapper.EditCragImageActivity;
 import com.dexcaff.cragmapper.R;
 import com.dexcaff.cragmapper.helpers.Image;
@@ -213,6 +214,9 @@ public class EditCragImageView extends View {
 
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
+             if (mContext instanceof CragViewActivity) {
+                ((CragViewActivity) mContext).toggle();
+            }
             return true;
         }
 
@@ -226,7 +230,7 @@ public class EditCragImageView extends View {
     };
 
     public void highlightNode(Node node) {
-        HashMap<String, Node> nodes = Node.getAllNodesByCragId(mContext, (long)mCurrentCrag.properties.get(Crag._ID));
+        HashMap<String, Node> nodes = Node.getAllNodesByCragId(mContext, (long) mCurrentCrag.properties.get(Crag._ID));
         boolean removal = false;
         String entryKey = "";
         for (Map.Entry<String, Node> entry : nodes.entrySet()) {

@@ -47,7 +47,7 @@ public class EditCragImageActivity extends AppCompatActivity {
         mActionBarOptions = mActionBar.getDisplayOptions();
         if (mActionBar != null) {
             mActionBar.setDisplayHomeAsUpEnabled(true);
-            String actionBarTitle = getString(R.string.title_activity_edit_crag_image) + " " + mCurrentCrag.properties.get(Crag.KEY_TITLE);
+            String actionBarTitle = getString(R.string.edit_crag_actionbar) + " " + mCurrentCrag.properties.get(Crag.KEY_TITLE);
             mActionBar.setTitle(actionBarTitle);
         }
 
