@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -103,6 +104,15 @@ public class CragViewActivity extends AppCompatActivity {
         mCragId = getIntent().getLongExtra(Crag.TAG, 0L);
         mCrag = Crag.getCragById(this, mCragId);
 
+        GestureDetector.SimpleOnGestureListener gestureListener
+                = new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                toggle();
+                return true;
+            }
+        };
+
         setupActionBar();
         setContentView(R.layout.activity_crag_view);
 
@@ -110,7 +120,7 @@ public class CragViewActivity extends AppCompatActivity {
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = (FrameLayout) findViewById(R.id.crag_view_frame);
         //Note, touch listener is set on this child view
-        mEditCragImageView = new EditCragImageView(this, mCrag);
+        mEditCragImageView = new EditCragImageView(this, mCrag, gestureListener);
         mContentView.addView(mEditCragImageView, 0);
 
         // Upon interacting with UI controls, delay any scheduled hide()

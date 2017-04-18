@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,11 +52,15 @@ public class EditNodeOrderActivity extends AppCompatActivity {
         mCrag = Crag.getCragById(this, mCragId);
         mNodeArray = Node.getAllNodesListByCragId(this, mCragId, Node.hasNodesWeightedValues(this, mCragId));
 
+        GestureDetector.SimpleOnGestureListener gestureListener
+                = new GestureDetector.SimpleOnGestureListener() {
+        };
+
         setupActionBar();
 
         setContentView(R.layout.activity_edit_node_order);
         FrameLayout cragFrame = (FrameLayout) findViewById(R.id.node_order_crag_frame);
-        mCragImageView = new EditCragImageView(this, mCrag);
+        mCragImageView = new EditCragImageView(this, mCrag, gestureListener);
         cragFrame.addView(mCragImageView, 0);
 
         mDragListView = (DragListView) findViewById(R.id.node_drag_list_view);

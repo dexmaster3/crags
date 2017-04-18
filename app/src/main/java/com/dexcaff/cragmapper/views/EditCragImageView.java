@@ -16,8 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.dexcaff.cragmapper.CragViewActivity;
-import com.dexcaff.cragmapper.EditCragImageActivity;
 import com.dexcaff.cragmapper.R;
 import com.dexcaff.cragmapper.helpers.Image;
 import com.dexcaff.cragmapper.models.Crag;
@@ -51,16 +49,18 @@ public class EditCragImageView extends View {
     private Rect mNodeRect = new Rect();
     private int mNodeAlpha = 0;
 
-    public EditCragImageView(Context context) {
-        this(context, new Crag(0, "", "", 0f));
+    public EditCragImageView(Context context, GestureDetector.SimpleOnGestureListener gestureListener) {
+        this(context, new Crag(0, "", "", 0f), gestureListener);
     }
 
     @TargetApi(16)
-    public EditCragImageView(Context context, Crag currentCrag) {
+    public EditCragImageView(Context context, Crag currentCrag, GestureDetector.SimpleOnGestureListener gestureListener) {
         super(context);
         mContext = context;
         mCurrentCrag = currentCrag;
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        GestureDetector.SimpleOnGestureListener finalGestureListener = decorateGestureListener(gestureListener);
 
         String originalImage = (String) mCurrentCrag.properties.get(Crag.KEY_IMAGE);
         mOriginalSize = Image.getOriginalImageSize(context, originalImage);
@@ -68,7 +68,7 @@ public class EditCragImageView extends View {
         Bitmap sampledBitmap = Image.getSampledRotatedBitmap(mContext, originalImage, size.x / 2, size.y / 2);
         mBackground = new BitmapDrawable(getResources(), sampledBitmap);
         mNodeDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.nodeoval, null);
-        mGestureDetector = new GestureDetectorCompat(context, mGestureListener);
+        mGestureDetector = new GestureDetectorCompat(context, finalGestureListener);
         invalidate();
     }
 
@@ -204,30 +204,25 @@ public class EditCragImageView extends View {
         return coords;
     }
 
-    private final GestureDetector.SimpleOnGestureListener mGestureListener
-            = new GestureDetector.SimpleOnGestureListener() {
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            drawTempNode(distanceX, distanceY);
-            return true;
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-             if (mContext instanceof CragViewActivity) {
-                ((CragViewActivity) mContext).toggle();
+    private GestureDetector.SimpleOnGestureListener decorateGestureListener(final GestureDetector.SimpleOnGestureListener gesture) {
+        return new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                drawTempNode(distanceX, distanceY);
+                return true;
             }
-            return true;
-        }
 
-        @Override
-        public boolean onDown(MotionEvent e) {
-            if (mContext instanceof EditCragImageActivity && drawTempNode(e)) {
-                ((EditCragImageActivity) mContext).showAddNodeActionBar();
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return gesture.onSingleTapUp(e);
             }
-            return true;
-        }
-    };
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return gesture.onDown(e);
+            }
+        };
+    }
 
     public void highlightNode(Node node) {
         HashMap<String, Node> nodes = Node.getAllNodesByCragId(mContext, (long) mCurrentCrag.properties.get(Crag._ID));

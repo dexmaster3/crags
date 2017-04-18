@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -51,7 +53,16 @@ public class EditCragImageActivity extends AppCompatActivity {
             mActionBar.setTitle(actionBarTitle);
         }
 
-        mContentView = new EditCragImageView(this, mCurrentCrag);
+        GestureDetector.SimpleOnGestureListener gestureListener
+                = new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                showAddNodeActionBar();
+                return true;
+            }
+        };
+
+        mContentView = new EditCragImageView(this, mCurrentCrag, gestureListener);
         setContentView(mContentView);
         checkShowNextStepBar();
     }
@@ -123,7 +134,7 @@ public class EditCragImageActivity extends AppCompatActivity {
     }
 
     private void checkShowNextStepBar() {
-        HashMap<String, Node> nodes = Node.getAllNodesByCragId(this, (long)mCurrentCrag.properties.get(Crag._ID));
+        HashMap<String, Node> nodes = Node.getAllNodesByCragId(this, (long) mCurrentCrag.properties.get(Crag._ID));
         if (nodes.size() >= 1) {
             showNextStepActionBar();
         } else {
