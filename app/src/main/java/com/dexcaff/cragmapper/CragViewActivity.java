@@ -1,19 +1,16 @@
 package com.dexcaff.cragmapper;
 
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
+import com.dexcaff.cragmapper.helpers.ActionBarHelper;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.views.EditCragImageView;
 
@@ -103,7 +100,7 @@ public class CragViewActivity extends AppCompatActivity {
         mCragId = getIntent().getLongExtra(Crag.TAG, 0L);
         mCrag = Crag.getCragById(this, mCragId);
 
-        setupActionBar();
+        ActionBarHelper.setupActionBar(this, getSupportActionBar());
         setContentView(R.layout.activity_crag_view);
 
         mVisible = true;
@@ -180,40 +177,5 @@ public class CragViewActivity extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
-
-    private void setupActionBar() {
-        mActionBar = getSupportActionBar();
-        int actionBarOptions = mActionBar.getDisplayOptions();
-        if (mActionBar != null) {
-            mActionBar.setDisplayHomeAsUpEnabled(true);
-            String actionBarTitle = getString(R.string.title_activity_crag_view);
-            mActionBar.setTitle(actionBarTitle);
-        }
-
-        mActionBar.setCustomView(R.layout.node_order_save_toolbar);
-        View actionBarView = mActionBar.getCustomView();
-        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
-        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
-        TextView doneText = (TextView) actionBarView.findViewById(R.id.crag_view_finish);
-        doneText.setCompoundDrawables(doneIcon, null, null, null);
-        doneText.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finish();
-                    }
-                });
-
-        mActionBar.setDisplayOptions(
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_HOME
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_TITLE);
-        mActionBar.setCustomView(actionBarView,
-                new android.support.v7.app.ActionBar.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-        mActionBar.setDisplayHomeAsUpEnabled(true);
     }
 }

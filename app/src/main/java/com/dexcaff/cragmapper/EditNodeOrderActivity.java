@@ -6,21 +6,18 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dexcaff.cragmapper.adapters.NodesAdapter;
+import com.dexcaff.cragmapper.helpers.ActionBarHelper;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
 import com.dexcaff.cragmapper.views.EditCragImageView;
@@ -37,7 +34,6 @@ public class EditNodeOrderActivity extends AppCompatActivity {
     private ArrayList<Node> mNodeArray;
     private DragListView mDragListView;
     private EditCragImageView mCragImageView;
-    private ActionBar mActionBar;
     private NodesAdapter mNodeAdapter;
 
     private boolean mIsEndingAnimator;
@@ -51,7 +47,13 @@ public class EditNodeOrderActivity extends AppCompatActivity {
         mCrag = Crag.getCragById(this, mCragId);
         mNodeArray = Node.getAllNodesListByCragId(this, mCragId, Node.hasNodesWeightedValues(this, mCragId));
 
-        setupActionBar();
+        TextView doneButton = ActionBarHelper.setupActionBar(this, getSupportActionBar(), getString(R.string.finish_crag));
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishButton();
+            }
+        });
 
         setContentView(R.layout.activity_edit_node_order);
         FrameLayout cragFrame = (FrameLayout) findViewById(R.id.node_order_crag_frame);
@@ -120,41 +122,6 @@ public class EditNodeOrderActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupActionBar() {
-        mActionBar = getSupportActionBar();
-        int actionBarOptions = mActionBar.getDisplayOptions();
-        if (mActionBar != null) {
-            mActionBar.setDisplayHomeAsUpEnabled(true);
-            String actionBarTitle = getString(R.string.title_activity_order_nodes);
-            mActionBar.setTitle(actionBarTitle);
-        }
-
-        mActionBar.setCustomView(R.layout.node_order_save_toolbar);
-        View actionBarView = mActionBar.getCustomView();
-        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
-        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
-        TextView doneText = (TextView) actionBarView.findViewById(R.id.node_order_done_text);
-        doneText.setCompoundDrawables(doneIcon, null, null, null);
-        doneText.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finishButton();
-                    }
-                });
-
-        mActionBar.setDisplayOptions(
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_HOME
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_TITLE);
-        mActionBar.setCustomView(actionBarView,
-                new android.support.v7.app.ActionBar.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-    }
-
     private void finishButton() {
         for (Node node : mNodeArray) {
             int position = mNodeAdapter.getPositionForItem(node);
@@ -165,8 +132,9 @@ public class EditNodeOrderActivity extends AppCompatActivity {
                 Log.e(TAG, "Update node failed", ex);
             }
         }
-        Intent intent = new Intent(this, CragViewActivity.class);
-        intent.putExtra(Crag.TAG, mCragId);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        finish();
         startActivity(intent);
     }
 }

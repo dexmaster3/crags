@@ -1,23 +1,20 @@
 package com.dexcaff.cragmapper;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.dexcaff.cragmapper.helpers.ActionBarHelper;
 import com.dexcaff.cragmapper.helpers.Image;
 import com.dexcaff.cragmapper.helpers.Validation;
 import com.dexcaff.cragmapper.models.Crag;
@@ -34,7 +31,6 @@ public class BuildCragActivity extends AppCompatActivity {
     private String mCurrentPhotoPath;
     private String mExistingPhotoPath;
     private long mCragId;
-    private static final int ICON_SIZE = 96;
     private static final int CAMERA_CAPTURE = 1;
     private static final String TAG = "BuildCragActivity";
 
@@ -49,46 +45,15 @@ public class BuildCragActivity extends AppCompatActivity {
         } else {
             mCragId = -1;
         }
-        //Action bar functionality
-        final LayoutInflater inflater = (LayoutInflater) getSupportActionBar().getThemedContext()
-                .getSystemService(LAYOUT_INFLATER_SERVICE);
-        final View customActionBarView = inflater.inflate(
-                R.layout.node_save_toolbar, (ViewGroup) findViewById(R.id.content_main));
-        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
-        Drawable closeIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_close_white_48dp, null);
-        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
-        closeIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
-        TextView doneText = (TextView) customActionBarView.findViewById(R.id.actionbar_done_text);
-        TextView closeText = (TextView) customActionBarView.findViewById(R.id.actionbar_cancel_text);
-        doneText.setText(R.string.save_crag);
-        closeText.setText(R.string.node_cancel);
-        doneText.setCompoundDrawables(doneIcon, null, null, null);
-        closeText.setCompoundDrawables(closeIcon, null, null, null);
-        customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+
+        TextView doneButton = ActionBarHelper.setupActionBar(this, getSupportActionBar(), getString(R.string.save_crag));
+        doneButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         saveCragClick();
                     }
                 });
-        customActionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finish();
-                    }
-                });
-        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayOptions(
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_HOME
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_TITLE);
-        actionBar.setCustomView(customActionBarView,
-                new android.support.v7.app.ActionBar.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-        actionBar.setDisplayHomeAsUpEnabled(true);
 
         //Image button
         mCragImageButton = (ImageButton) findViewById(R.id.crag_edit_image);

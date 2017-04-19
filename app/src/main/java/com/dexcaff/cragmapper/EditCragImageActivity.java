@@ -5,16 +5,14 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.dexcaff.cragmapper.helpers.ActionBarHelper;
 import com.dexcaff.cragmapper.models.Crag;
 import com.dexcaff.cragmapper.models.Node;
 import com.dexcaff.cragmapper.views.EditCragImageView;
@@ -132,72 +130,26 @@ public class EditCragImageActivity extends AppCompatActivity {
     }
 
     public void showNextStepActionBar() {
-        mActionBar.setCustomView(R.layout.goto_nodes_edit_toolbar);
-        View actionBarView = mActionBar.getCustomView();
-        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
-        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
-        TextView doneText = (TextView) actionBarView.findViewById(R.id.goto_nodes_save_text);
-        doneText.setText(R.string.next_save_nodes);
-        doneText.setCompoundDrawables(doneIcon, null, null, null);
-        actionBarView.findViewById(R.id.goto_nodes_save).setOnClickListener(
+        TextView doneText = ActionBarHelper.setupActionBar(this, mActionBar, getString(R.string.next_save_nodes));
+        doneText.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         nextStepButton();
                     }
                 });
-
-        mActionBar.setDisplayOptions(
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_HOME
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_TITLE);
-        mActionBar.setCustomView(actionBarView,
-                new android.support.v7.app.ActionBar.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBarActive = true;
+        mActionBarActive = false;
     }
 
     public void showAddNodeActionBar() {
-        mActionBar.setCustomView(R.layout.node_save_toolbar);
-        View actionBarView = mActionBar.getCustomView();
-        Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_forward_white_48dp, null);
-        Drawable closeIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_close_white_48dp, null);
-        doneIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
-        closeIcon.setBounds(0, 0, ICON_SIZE, ICON_SIZE);
-        TextView cancelText = (TextView) actionBarView.findViewById(R.id.actionbar_cancel_text);
-        TextView doneText = (TextView) actionBarView.findViewById(R.id.actionbar_done_text);
-        doneText.setText(R.string.save_node);
-        cancelText.setText(R.string.node_cancel);
-        doneText.setCompoundDrawables(doneIcon, null, null, null);
-        cancelText.setCompoundDrawables(closeIcon, null, null, null);
-        actionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        cancelButton();
-                    }
-                });
-        actionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+        TextView doneText = ActionBarHelper.setupActionBar(this, mActionBar, getString(R.string.save_node));
+        doneText.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         saveNodeButton();
                     }
                 });
-
-        mActionBar.setDisplayOptions(
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,
-                android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_HOME
-                        | android.support.v7.app.ActionBar.DISPLAY_SHOW_TITLE);
-        mActionBar.setCustomView(actionBarView,
-                new android.support.v7.app.ActionBar.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-        mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBarActive = true;
     }
 

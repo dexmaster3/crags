@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/general_single_button_toolbar">
 
         <TextView
-            android:id="@+id/node_order_done_text"
+            android:id="@+id/save_button"
             style="?android:actionBarTabTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_done_white_48dp"
             android:drawableStart="@drawable/ic_done_white_48dp"
             android:drawablePadding="8dp"
-            android:text="@string/save_node_order"
+            android:text="@string/save"
             android:gravity="center_vertical"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
