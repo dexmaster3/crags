@@ -80,6 +80,12 @@ public class EditCragImageActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        mAnim.cancel();
+    }
+
+    @Override
     public void onBackPressed() {
         if (mActionBarActive) {
             cancelButton();
