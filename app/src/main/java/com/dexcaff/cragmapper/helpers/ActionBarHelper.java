@@ -19,8 +19,9 @@ import com.dexcaff.cragmapper.R;
 
 public class ActionBarHelper {
     private static final int ICON_SIZE = 96;
+    private static final String DEFAULT_BUTTON_TEXT = "Save";
     public static TextView setupActionBar(Context context, ActionBar actionBar) {
-        return setupActionBar(context, actionBar, "Save");
+        return setupActionBar(context, actionBar, DEFAULT_BUTTON_TEXT);
     }
 
     public static TextView setupActionBar(Context context, ActionBar actionBar, String text) {
@@ -35,6 +36,9 @@ public class ActionBarHelper {
         TextView doneText = (TextView) actionBarView.findViewById(R.id.save_button);
         doneText.setCompoundDrawables(null, null, doneIcon, null);
         doneText.setText(text);
+        if (text == null) {
+            doneText.setVisibility(View.GONE);
+        }
 
         actionBar.setDisplayOptions(
                 android.support.v7.app.ActionBar.DISPLAY_SHOW_CUSTOM,

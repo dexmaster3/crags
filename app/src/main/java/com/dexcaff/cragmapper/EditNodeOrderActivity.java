@@ -138,8 +138,9 @@ public class EditNodeOrderActivity extends AppCompatActivity {
                 Log.e(TAG, "Update node failed", ex);
             }
         }
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, CragViewActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(Crag.EXTRA_TAG, mCragId);
         finish();
         startActivity(intent);
     }

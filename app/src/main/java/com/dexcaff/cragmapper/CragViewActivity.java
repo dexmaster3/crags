@@ -97,10 +97,10 @@ public class CragViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCragId = getIntent().getLongExtra(Crag.TAG, 0L);
+        mCragId = getIntent().getLongExtra(Crag.EXTRA_TAG, 0L);
         mCrag = Crag.getCragById(this, mCragId);
 
-        ActionBarHelper.setupActionBar(this, getSupportActionBar());
+        ActionBarHelper.setupActionBar(this, getSupportActionBar(), null);
         setContentView(R.layout.activity_crag_view);
 
         mVisible = true;

@@ -4,6 +4,7 @@
     <string name="node_cancel">Cancel</string>
     <string name="save_node">Save Node</string>
     <string name="save">Save</string>
+    <string name="done">Done</string>
     <string name="save_node_order">Save Ordering</string>
     <string name="save_crag">Save Crag Basics</string>
     <string name="crag_image">Crag Image</string>
