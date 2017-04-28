@@ -30,3 +30,5 @@ dependencies {
     compile 'com.github.woxthebox:draglistview:1.4.1'
     testCompile 'junit:junit:4.12'
 }
+
+apply plugin: 'com.google.gms.google-services'
