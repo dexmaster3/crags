@@ -32,7 +32,8 @@
                 android:resource="@xml/prodivder_paths" />
         </provider>
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:label="@string/title_activity_main_activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -75,7 +76,9 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login">
+
+        </activity>
     </application>
 
 </manifest>

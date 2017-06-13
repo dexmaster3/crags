@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -138,10 +139,14 @@ public class EditNodeOrderActivity extends AppCompatActivity {
                 Log.e(TAG, "Update node failed", ex);
             }
         }
-        Intent intent = new Intent(this, CragViewActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(Crag.EXTRA_TAG, mCragId);
+        Intent mainListIntent = new Intent(this, MainActivity.class);
+        Intent cragViewIntent = new Intent(this, CragViewActivity.class);
+        mainListIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        cragViewIntent.putExtra(Crag.EXTRA_TAG, mCragId);
+        TaskStackBuilder tStack = TaskStackBuilder.create(this)
+                .addNextIntent(mainListIntent)
+                .addNextIntent(cragViewIntent);
+        tStack.startActivities();
         finish();
-        startActivity(intent);
     }
 }

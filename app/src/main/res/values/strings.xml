@@ -19,6 +19,7 @@
     <string name="next_save_nodes">Order Nodes</string>
     <string name="finish_crag">Finish</string>
 
+    <string name="title_activity_main_activity">Your Crags</string>
     <string name="title_activity_crag_view">Crag View</string>
     <string name="title_activity_order_nodes">Order route nodes</string>
     <string name="title_activity_edit_crag_image">EditCragImageActivity</string>
